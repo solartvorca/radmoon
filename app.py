@@ -10,7 +10,10 @@ from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-load_dotenv("baza.env")
+try:
+    load_dotenv("baza.env")
+except:
+    pass
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "lyunny_marafon_2026_super_secret_key")
 
 # Database URL - use PostgreSQL in production, SQLite in development
