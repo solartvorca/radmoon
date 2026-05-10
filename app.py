@@ -14,7 +14,7 @@ load_dotenv("baza.env")
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "lyunny_marafon_2026_super_secret_key")
 
 # Database URL - use PostgreSQL in production, SQLite in development
-database_url = os.environ.get("DATABASE_URL")
+database_url = os.environ.get("DATABASE_URL", "")
 if database_url and database_url.startswith("postgresql://"):
     # Fix psycopg2 URL for SQLAlchemy
     database_url = database_url.replace("postgresql://", "postgresql+psycopg2://")
@@ -22,6 +22,13 @@ if database_url and database_url.startswith("postgresql://"):
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url or "sqlite:///marathon.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
+
+# Environment variables with defaults for Railway deployment
+SMTP_HOST = os.environ.get("SMTP_HOST", "")
+SMTP_PORT = os.environ.get("SMTP_PORT", "587")
+SMTP_USER = os.environ.get("SMTP_USER", "")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+VK_TOKEN = os.environ.get("VK_TOKEN", "")
 
 # Define timezone for consistency
 MOSCOW_TZ = pytz.timezone("Europe/Moscow")
