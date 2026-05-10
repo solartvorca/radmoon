@@ -1,0 +1,1297 @@
+ 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Манна: Сакральный Код</title>
+    <style>
+        :root { 
+            --bg-deep: #0a0a1a;
+            --bg-mid: #1a0a2e;
+            --bg-light: #2d1b4e;
+            --gold: #ffd700;
+            --gold-soft: #ffec8b;
+            --amber: #ffbf00;
+            --rose: #ff6b9d;
+            --indigo: #4b0082;
+            --violet: #8b5cf6;
+            --violet-deep: #6d28d9;
+            --cyan: #00d4aa;
+            --correct: #00d4aa;
+            --glow-gold: rgba(255, 215, 0, 0.6);
+            --glow-amber: rgba(255, 191, 0, 0.4);
+            --glow-violet: rgba(139, 92, 246, 0.5);
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            width: 100%; 
+            background: radial-gradient(ellipse at center, var(--bg-mid) 0%, var(--bg-deep) 100%);
+            color: var(--gold-soft); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column;
+        }
+
+        /* Плавающие частицы фона */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float-particle 8s infinite ease-in-out;
+        }
+        
+        @keyframes float-particle {
+            0%, 100% { opacity: 0; transform: translateY(100vh) scale(0); }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            50% { transform: translateY(-10vh) scale(1); }
+        }
+
+        .top-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 20px; 
+            background: linear-gradient(180deg, rgba(26,10,46,0.9) 0%, rgba(10,10,26,0.8) 100%);
+            border-bottom: 1px solid rgba(255,215,0,0.3); 
+            height: 60px; 
+            flex-shrink: 0; 
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        
+        .prana-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px var(--glow-gold);
+        }
+        
+        .prana-display span {
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 1.4rem;
+        }
+
+        #status-label { 
+            color: var(--amber); 
+            font-size: 12px; 
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px var(--glow-amber);
+            font-weight: 300;
+        }
+
+        .top-bar button {
+            background: rgba(255,215,0,0.1);
+            border: 1px solid rgba(255,215,0,0.4);
+            color: var(--gold-soft);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 10px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .top-bar button:hover {
+            background: rgba(255,215,0,0.25);
+            box-shadow: 0 0 20px var(--glow-gold);
+        }
+        
+        .top-bar button.active {
+            background: rgba(255,215,0,0.3);
+            box-shadow: 0 0 15px var(--glow-gold);
+        }
+
+        .nav-menu { 
+            display: flex; 
+            overflow-x: auto; 
+            background: rgba(10,10,26,0.6); 
+            padding: 10px 15px; 
+            gap: 8px; 
+            height: 55px; 
+            flex-shrink: 0; 
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,215,0,0.15);
+        }
+        
+        .nav-menu::-webkit-scrollbar {
+            height: 3px;
+        }
+        
+        .nav-menu::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 3px;
+        }
+        
+        .nav-menu button { 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(255,215,0,0.25); 
+            color: rgba(255,236,139,0.7); 
+            padding: 8px 16px; 
+            border-radius: 25px; 
+            font-size: 10px; 
+            white-space: nowrap;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .nav-menu button:hover {
+            background: rgba(255,215,0,0.15);
+            border-color: rgba(255,215,0,0.5);
+        }
+        
+        .nav-menu button.active { 
+            background: linear-gradient(135deg, rgba(255,215,0,0.3) 0%, rgba(255,191,0,0.2) 100%);
+            color: var(--gold); 
+            font-weight: 500;
+            border-color: var(--gold);
+            box-shadow: 0 0 25px var(--glow-gold);
+        }
+
+        .c1 { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: #fff; } 
+        .c2 { background: linear-gradient(135deg, #ffd93d, #ffcd00); color: #1a1a2e; } 
+        .c3 { background: linear-gradient(135deg, #6bcf7f, #4caf50); color: #fff; } 
+        .c4 { background: linear-gradient(135deg, #4ecdc4, #26a69a); color: #fff; } 
+        .c5 { background: linear-gradient(135deg, #45b7d1, #2196f3); color: #fff; } 
+        .c6 { background: linear-gradient(135deg, #96ceb4, #81c784); color: #1a1a2e; } 
+        .c7 { background: linear-gradient(135deg, #dfe6e9, #b0bec5); color: #1a1a2e; } 
+        .c8 { background: linear-gradient(135deg, #fd79a8, #e91e63); color: #fff; } 
+        .c9 { background: linear-gradient(135deg, #a29bfe, #7c4dff); color: #fff; }
+
+        .shape { 
+            width: 55px; 
+            height: 55px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 600; 
+            position: relative; 
+            margin: 5px; 
+            transition: all 0.3s ease; 
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .shape:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+        }
+        
+        .s0 { border-radius: 50%; } 
+        .s1 { border-radius: 12px; } 
+        .s2 { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); padding-top: 10px; height: 45px; } 
+        .s3 { transform: rotate(45deg); width: 40px; height: 40px; } 
+        .s3 span { transform: rotate(-45deg); display: block; }
+
+        #viewport { 
+            flex: 1; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: flex-start;
+            padding-top: 5vh;
+            overflow: hidden; 
+            z-index: 1;
+        }
+
+        #flower-svg-container { 
+            width: 70%; 
+            max-width: 320px; 
+            cursor: pointer; 
+            z-index: 5;
+            filter: drop-shadow(0 0 30px var(--glow-gold));
+            animation: flower-breathe 8s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        
+        #flower-svg-container:hover {
+            filter: drop-shadow(0 0 50px var(--glow-gold));
+        }
+
+        @keyframes flower-breathe {
+            0%, 100% { 
+                transform: scale(0.9);
+                filter: drop-shadow(0 0 20px var(--glow-gold)) drop-shadow(0 0 40px var(--glow-amber));
+            }
+            50% { 
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 40px var(--glow-gold)) drop-shadow(0 0 80px var(--glow-amber)) brightness(1.2);
+            }
+        }
+
+        .flower-svg { 
+            width: 100%; 
+            height: 100%; 
+            stroke: var(--gold); 
+            fill: none; 
+            stroke-width: 0.5;
+        }
+
+        .flower-glow {
+            animation: eternal-breath 4s ease-in-out infinite;
+        }
+        
+        @keyframes eternal-breath {
+            0%, 100% { 
+                filter: drop-shadow(0 0 20px var(--glow-gold)) drop-shadow(0 0 40px var(--glow-amber));
+                opacity: 0.9;
+            }
+            50% { 
+                filter: drop-shadow(0 0 40px var(--glow-gold)) drop-shadow(0 0 80px var(--glow-amber)) brightness(1.3);
+                opacity: 1;
+            }
+        }
+
+        .prana-glow { 
+            animation: pulse-glow 1.5s ease-out; 
+        }
+        
+        @keyframes pulse-glow {
+            0% { filter: drop-shadow(0 0 20px var(--glow-gold)) drop-shadow(0 0 40px var(--glow-amber)); }
+            50% { filter: drop-shadow(0 0 60px var(--gold)) drop-shadow(0 0 100px var(--amber)) brightness(1.8); transform: scale(1.03); }
+            100% { filter: drop-shadow(0 0 20px var(--glow-gold)) drop-shadow(0 0 40px var(--glow-amber)); }
+        }
+
+        #game-layer { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: radial-gradient(ellipse at center, var(--bg-mid) 0%, var(--bg-deep) 100%);
+            display: none; 
+            flex-direction: column; 
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+        
+        #game-display { 
+            height: 45%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            border-bottom: 1px solid rgba(255,215,0,0.2); 
+            padding: 20px; 
+            box-sizing: border-box;
+            background: linear-gradient(180deg, rgba(26,10,46,0.5) 0%, transparent 100%);
+        }
+        
+        #numpad-zone { 
+            height: 55%; 
+            background: rgba(10,10,26,0.4); 
+            padding: 20px; 
+            overflow-y: auto; 
+            box-sizing: border-box;
+        }
+        
+        .grid-num { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            max-width: 320px; 
+            margin: 0 auto; 
+        }
+        
+        .grid-options { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 20px; 
+            max-width: 320px; 
+            margin: 0 auto; 
+        }
+        
+        .grid-alpha { 
+            display: grid; 
+            grid-template-columns: repeat(6, 1fr); 
+            gap: 8px; 
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .k { 
+            background: linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(255,191,0,0.05) 100%);
+            border: 1px solid rgba(255,215,0,0.3); 
+            color: var(--gold-soft); 
+            padding: 20px 0; 
+            border-radius: 15px; 
+            font-size: 1.5rem; 
+            touch-action: manipulation; 
+            font-weight: 500;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+            text-shadow: 0 0 10px var(--glow-gold);
+        }
+        
+        .k:hover {
+            background: linear-gradient(135deg, rgba(255,215,0,0.2) 0%, rgba(255,191,0,0.1) 100%);
+            border-color: rgba(255,215,0,0.5);
+            box-shadow: 0 0 20px var(--glow-gold);
+        }
+        
+        .k:active { 
+            background: linear-gradient(135deg, rgba(255,215,0,0.3) 0%, rgba(255,191,0,0.2) 100%);
+            color: var(--gold); 
+            transform: scale(0.98);
+            box-shadow: 0 0 30px var(--glow-gold);
+        }
+
+        .settings-panel { 
+            background: linear-gradient(180deg, rgba(26,10,46,0.8) 0%, rgba(10,10,26,0.9) 100%);
+            border-top: 1px solid rgba(255,215,0,0.2); 
+            padding: 10px 15px; 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 10px; 
+            height: 65px; 
+            flex-shrink: 0; 
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        
+        .settings-panel input { 
+            width: 100%; 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(255,215,0,0.3); 
+            color: var(--gold); 
+            text-align: center; 
+            border-radius: 10px; 
+            font-size: 12px;
+            padding: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .settings-panel input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 15px var(--glow-gold);
+        }
+
+        #ref-modal, #intro-modal { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: radial-gradient(ellipse at center, var(--bg-mid) 0%, var(--bg-deep) 100%);
+            z-index: 5000; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 30px; 
+            box-sizing: border-box; 
+            text-align: center; 
+            overflow-y: auto;
+            backdrop-filter: blur(30px);
+        }
+        
+        .mode-desc { 
+            font-size: 0.9rem; 
+            color: var(--amber); 
+            margin-bottom: 20px; 
+            padding: 15px; 
+            border: 1px solid rgba(255,215,0,0.2); 
+            background: rgba(255,255,255,0.03); 
+            border-radius: 15px; 
+            line-height: 1.5;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Видео перемещено в левый верхний угол */
+        #video-container { 
+            position: fixed; 
+            top: 70px; 
+            left: 10px; 
+            width: 180px; 
+            height: 100px; 
+            background: rgba(0,0,0,0.8); 
+            border: 1px solid rgba(255,215,0,0.4); 
+            z-index: 200; 
+            display: none; 
+            border-radius: 12px; 
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        
+        #video-container iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+        }
+        
+        .video-close { 
+            position: absolute; 
+            top: 5px; 
+            right: 5px; 
+            background: rgba(255,107,157,0.9); 
+            color: white; 
+            border: none; 
+            font-size: 10px; 
+            cursor: pointer; 
+            z-index: 210;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #breath-label {
+            font-size: 1.3rem;
+            color: var(--gold);
+            letter-spacing: 6px;
+            text-shadow: 0 0 30px var(--glow-gold);
+            font-weight: 300;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 5;
+        }
+        
+        #breath-label.visible {
+            opacity: 1;
+        }
+
+        .intro-content {
+            max-width: 600px;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .intro-content h1 {
+            color: var(--gold);
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 8px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 40px var(--glow-gold);
+        }
+        
+        .intro-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: rgba(255,236,139,0.8);
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        
+        .intro-content b {
+            color: var(--gold);
+            font-weight: 500;
+        }
+        
+        .start-btn {
+            width: 100%;
+            max-width: 300px;
+            background: linear-gradient(135deg, rgba(255,215,0,0.2) 0%, rgba(255,191,0,0.1) 100%);
+            border: 1px solid rgba(255,215,0,0.5);
+            color: var(--gold);
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+            text-shadow: 0 0 15px var(--glow-gold);
+        }
+        
+        .start-btn:hover {
+            background: linear-gradient(135deg, rgba(255,215,0,0.3) 0%, rgba(255,191,0,0.2) 100%);
+            box-shadow: 0 0 40px var(--glow-gold);
+            transform: translateY(-2px);
+        }
+
+        #ref-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .ref-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,215,0,0.2);
+            padding: 15px;
+            text-align: center;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .ref-item:hover {
+            background: rgba(255,215,0,0.1);
+            border-color: rgba(255,215,0,0.4);
+        }
+        
+        .ref-item .shape {
+            margin: 10px auto;
+        }
+
+        #flash-msg {
+            background: rgba(10,10,26,0.98);
+        }
+        
+        #msg-text {
+            color: var(--gold);
+            font-size: 1.4rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-shadow: 0 0 40px var(--glow-gold);
+            line-height: 1.6;
+            max-width: 80%;
+        }
+
+        .flower-circles circle {
+            animation: circle-glow 3s ease-in-out infinite;
+        }
+        
+        .flower-circles circle:nth-child(odd) {
+            animation-delay: 0s;
+        }
+        
+        .flower-circles circle:nth-child(even) {
+            animation-delay: 1.5s;
+        }
+        
+        @keyframes circle-glow {
+            0%, 100% {
+                stroke-opacity: 0.6;
+                stroke-width: 0.4;
+            }
+            50% {
+                stroke-opacity: 1;
+                stroke-width: 0.8;
+            }
+        }
+        
+        /* Контейнер для кнопок внизу */
+        .controls-container {
+            position: absolute;
+            bottom: 90px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            z-index: 50;
+            pointer-events: none;
+        }
+        
+        .controls-container > * {
+            pointer-events: auto;
+        }
+        
+        /* Переключатель реверсионного дыхания */
+        .reverse-toggle {
+            background: rgba(255,215,0,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-size: 11px;
+            color: var(--gold-soft);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 2px;
+            min-width: 220px;
+        }
+        
+        .reverse-toggle:hover {
+            background: rgba(255,215,0,0.2);
+            border-color: rgba(255,215,0,0.5);
+        }
+        
+        .reverse-toggle.active {
+            background: rgba(139,92,246,0.2);
+            border-color: var(--violet);
+            color: var(--violet);
+        }
+        
+        .reverse-toggle .main-text::before {
+            content: '○ ';
+            font-size: 14px;
+        }
+        
+        .reverse-toggle.active .main-text::before {
+            content: '● ';
+        }
+        
+        .reverse-toggle .hint {
+            font-size: 9px;
+            opacity: 0.7;
+            letter-spacing: 1px;
+            line-height: 1.3;
+            text-align: center;
+            max-width: 200px;
+        }
+        
+        /* Переключатель сенсорных напоминаний */
+        .sensory-toggle {
+            background: rgba(255,215,0,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 25px;
+            padding: 8px 20px;
+            font-size: 11px;
+            color: var(--gold-soft);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 2px;
+        }
+        
+        .sensory-toggle:hover {
+            background: rgba(255,215,0,0.2);
+            border-color: rgba(255,215,0,0.5);
+        }
+        
+        .sensory-toggle.active {
+            background: rgba(0,212,170,0.2);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+        
+        .sensory-toggle::before {
+            content: '○';
+            font-size: 14px;
+        }
+        
+        .sensory-toggle.active::before {
+            content: '●';
+        }
+
+        .back-btn-neurogenesis {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            border: 1px solid rgba(255,215,0,0.3);
+            background: rgba(10,10,26,0.7);
+            color: rgba(255,236,139,0.8);
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-radius: 6px;
+        }
+
+        .back-btn-neurogenesis:hover {
+            border-color: rgba(255,215,0,0.6);
+            color: rgba(255,236,139,1);
+            background: rgba(10,10,26,0.9);
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Back Button -->
+<button class="back-btn-neurogenesis" onclick="goBack()">← Назад к марафону</button>
+
+<div class="particles" id="particles"></div>
+
+<div id="intro-modal">
+    <div class="intro-content">
+        <h1>МАННА</h1>
+        <p>Практика развития <b>нейронных связей</b> и праноедения.</p>
+        <p>Манна - это духовное питание, энергия, которая питает тело без физической пищи через осознанное дыхание и нейрогенез.</p>
+        <p><b>Реверсия:</b> Есть те, кто вдыхает [мысленно] в выдох и выдыхает [мысленно] во вдох. Это нейтрализует животный рефлекс.</p>
+        <p style="font-size: 0.9rem; color: rgba(255,236,139,0.6); margin-top: 30px;">(Бхагавад Гита 4.25-29)</p>
+        <button class="start-btn" onclick="startGame()">ВОЙТИ В ПОТОК</button>
+    </div>
+</div>
+
+<div class="top-bar">
+    <div class="prana-display">🍞 МАННА <span id="prana-val">0</span></div>
+    <div id="status-label">ВДОХ</div>
+    <div style="display: flex; gap: 8px;">
+        <button onclick="toggleVideo()">ВИДЕО</button>
+        <button onclick="toggleRef()">СПРАВКА</button>
+    </div>
+</div>
+
+<div class="nav-menu">
+    <button onclick="exitGame()" id="btn-home" class="active">ДЫХАНИЕ</button>
+    <button onclick="startMode(1)">МЕДИТАЦИЯ</button>
+    <button onclick="startMode(2)">СИМВОЛ</button>
+    <button onclick="startMode(3)">АРИФМЕТИКА</button>
+    <button onclick="startMode(4)">ВЕС СЛОВА</button>
+</div>
+
+<div id="viewport">
+    <div id="flower-svg-container" onclick="addPrana(1)" class="flower-glow">
+        <svg id="main-svg" class="flower-svg" viewBox="0 0 100 100">
+            <g id="flower-geometry" class="flower-circles">
+                <circle cx="50" cy="50" r="48" stroke-width="0.2"/>
+                <circle cx="50" cy="50" r="15.5"/>
+                <circle cx="50" cy="34.5" r="15.5"/>
+                <circle cx="50" cy="65.5" r="15.5"/>
+                <circle cx="36.5" cy="42.2" r="15.5"/>
+                <circle cx="63.5" cy="42.2" r="15.5"/>
+                <circle cx="36.5" cy="57.8" r="15.5"/>
+                <circle cx="63.5" cy="57.8" r="15.5"/>
+                <circle cx="50" cy="19" r="15.5"/>
+                <circle cx="50" cy="81" r="15.5"/>
+                <circle cx="23" cy="34.5" r="15.5"/>
+                <circle cx="77" cy="34.5" r="15.5"/>
+                <circle cx="23" cy="65.5" r="15.5"/>
+                <circle cx="77" cy="65.5" r="15.5"/>
+                <circle cx="36.5" cy="26.8" r="15.5"/>
+                <circle cx="63.5" cy="26.8" r="15.5"/>
+                <circle cx="36.5" cy="73.2" r="15.5"/>
+                <circle cx="63.5" cy="73.2" r="15.5"/>
+            </g>
+        </svg>
+    </div>
+    
+    <div id="breath-label">ВДОХ</div>
+    
+    <!-- Контейнер с кнопками внизу -->
+    <div class="controls-container">
+        <div class="reverse-toggle" id="reverse-toggle" onclick="toggleReverseMode()">
+            <span class="main-text">РЕВЕРСИЯ</span>
+            <span class="hint">Во время физического выдоха — мысленный вдох</span>
+        </div>
+        
+        <div class="sensory-toggle" id="sensory-toggle" onclick="toggleSensoryMode()">
+            НАПОМИНАНИЯ
+        </div>
+    </div>
+    
+    <div id="game-layer">
+        <div id="game-display">
+            <div id="task-content"></div>
+            <div id="input-buffer" style="font-size: 2.2rem; color: var(--gold); margin-top: 15px; min-height: 2.5rem; text-shadow: 0 0 20px var(--glow-gold);"></div>
+        </div>
+        <div id="numpad-zone"><div id="keys-container"></div></div>
+        <button onclick="exitGame()" style="position:absolute; top:15px; right:15px; background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.4); color:var(--gold-soft); padding:10px 15px; border-radius:25px; font-size:11px; letter-spacing:1px; cursor:pointer; transition:all 0.3s;">ВЫХОД</button>
+    </div>
+</div>
+
+<!-- Видео в левом верхнем углу -->
+<div id="video-container">
+    <button class="video-close" onclick="toggleVideo()">×</button>
+    <iframe id="vk-video" src="" allow="autoplay; encrypted-media; fullscreen" frameborder="0"></iframe>
+</div>
+
+<div class="settings-panel">
+    <div><input type="number" id="t-in" value="4" placeholder="Вдох"></div>
+    <div><input type="number" id="t-p1" value="0" placeholder="Пауза"></div>
+    <div><input type="number" id="t-out" value="4" placeholder="Выдох"></div>
+    <div><input type="number" id="t-p2" value="0" placeholder="Пауза"></div>
+    <div><input type="number" id="t-freq" value="3" placeholder="Частота"></div>
+</div>
+
+<div id="ref-modal" style="display:none;">
+    <h3 style="color:var(--gold); text-align:center; font-weight:300; letter-spacing:4px; margin-bottom:30px; text-shadow:0 0 30px var(--glow-gold);">Таблица Нейро-Кодов</h3>
+    <div id="ref-content"></div>
+    <button onclick="toggleRef()" style="width:100%; max-width:300px; margin-top:30px; padding:15px; background:linear-gradient(135deg, rgba(255,215,0,0.2) 0%, rgba(255,191,0,0.1) 100%); border:1px solid rgba(255,215,0,0.4); color:var(--gold); border-radius:30px; font-weight:500; letter-spacing:2px; cursor:pointer; transition:all 0.3s;">ЗАКРЫТЬ</button>
+</div>
+
+<div id="flash-msg" style="position:fixed; top:0; left:0; width:100%; height:100%; display:none; z-index:6000; align-items:center; justify-content:center; text-align:center; padding:20px; cursor:pointer;" onclick="this.style.display='none'">
+    <h2 id="msg-text"></h2>
+</div>
+
+<script>
+    const CONFIG = { 1: ['И','С','Э'], 2: ['А','Й','П','Т'], 3: ['Б','З','М','Ю'], 4: ['В','К','Ф','Я'], 5: ['Д','Л','Х','Ы'], 6: ['Е','О','Ц','Ь'], 7: ['Ё','Н','Ъ'], 8: ['Г','У','Ч','Щ'], 9: ['Ж','Р','Ш'] };
+    const shapes = ['s0','s1','s2','s3'];
+    
+    // Расширенный массив напоминаний
+    const sensory = [
+        // Старые напоминания
+        "Почувствуй тепло в груди",
+        "Звук тишины",
+        "Вибрация в пальцах",
+        "Мурашки на коже",
+        "Расслабь челюсть",
+        "Ощути одежду на плечах",
+        "Почувствуй ладони",
+        "Ощути влажность слизистых",
+        "Заметь пульсацию",
+        // Новые напоминания
+        "Правый глаз смотрит отдельно от левого",
+        "Звук тишины главный проводник",
+        "Синхронизируй дыхание и сердцебиение",
+        "Ничего не предпринимай",
+        "Тяни уши",
+        "Шея медленно движется",
+        "Пульсации во всём теле",
+        "Вибрации на кончиках пальцев",
+        "Статическое электричество",
+        "Благодарность богатство",
+        "Чувствуй",
+        "Чувствовать вибрации",
+        "Аз есмь стопы",
+        "Стань доступным для того, кто одно единое космическое сознание",
+        "Напитывай тела и оболочки плазмой",
+        "Чувствуй тепло камина",
+        "Любящая доброта растёт и увеличивается с каждым вдохом и выдохом в миллион раз"
+    ];
+    
+    const wordWeightPhrases = [
+        "Чистый дух", "Всё и ничто", "Истина пустота", "И ничего", "Живо бытие",
+        "Ибо Свобода Простора", "Отсутствие я", "Осознание", "своей природы дома",
+        "Звука неделимого", "О Единое", "В центре Господь", "Простора",
+        "Север Юг", "Запад восток", "Присутствие", "Вечное", "Сил совершенное",
+        "Сей Ничто", "что возможно", "почувствовать", "И познать", "направить внимание", "описав",
+        "Чистое осознавание", "истиной природы", "тишина", "Безмолвие", "Простора",
+        "Эй Чем ты осознаёшь", "всё и ничто", "Осознавание", "осознания себя есть",
+        "Просто есть сердце", "Нежно Свидетель", "чувств настоящего", "Не рождённое ничего",
+        "Потенциал чистый дух", "Просто Ра", "Свет знания", "Квантовое сознание",
+        "Кто Абсолют", "Единое космическое", "Осознание", "магнетизм",
+        "Точка света", "Которое Точка", "нулевого магнетизма"
+    ];
+    
+    const meditationPhrases = ["Чистый дух", "Всё и ничто", "Истина пустота", "Живо бытие", "Голограмма", "Присутствие Вечное"];
+    
+    let letterMap = {};
+    for (let k in CONFIG) CONFIG[k].forEach((l, i) => letterMap[l] = { code: k, color: 'c'+k, shape: shapes[i] });
+    
+    let prana = parseFloat(localStorage.getItem('prana_v22')) || 0;
+    let mode = 0, currentInput = "", targetVal = 0, phraseIdx = 0, charIdx = 0, isProcessing = false;
+    let sensoryEnabled = false;
+    let reverseMode = false;
+    let breathInterval = null;
+    let breathCount = 0; // Счётчик вдохов для напоминаний
+
+    function createParticles() {
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (6 + Math.random() * 6) + 's';
+            container.appendChild(particle);
+        }
+    }
+    
+    createParticles();
+
+    function toggleReverseMode() {
+        reverseMode = !reverseMode;
+        const toggle = document.getElementById('reverse-toggle');
+        const label = document.getElementById('breath-label');
+        const statusLabel = document.getElementById('status-label');
+        const flower = document.getElementById('flower-svg-container');
+        
+        if (reverseMode) {
+            toggle.classList.add('active');
+            toggle.innerHTML = `
+                <span class="main-text">РЕВЕРСИЯ</span>
+                <span class="hint">Физ. выдох = мысл. вдох | Физ. вдох = мысл. выдох</span>
+            `;
+            label.innerText = "ВДОХ";
+            label.classList.add('visible');
+            statusLabel.style.opacity = '0';
+            flower.style.animation = 'none';
+            setTimeout(() => {
+                startReverseBreathing();
+            }, 50);
+        } else {
+            toggle.classList.remove('active');
+            toggle.innerHTML = `
+                <span class="main-text">РЕВЕРСИЯ</span>
+                <span class="hint">Во время физического выдоха — мысленный вдох</span>
+            `;
+            label.classList.remove('visible');
+            statusLabel.style.opacity = '1';
+            stopReverseBreathing();
+            flower.style.animation = 'flower-breathe 8s ease-in-out infinite';
+        }
+    }
+
+    function startReverseBreathing() {
+        const flower = document.getElementById('flower-svg-container');
+        const label = document.getElementById('breath-label');
+        const tIn = parseFloat(document.getElementById('t-in').value) || 4;
+        const tOut = parseFloat(document.getElementById('t-out').value) || 4;
+        
+        let isContracting = true;
+        
+        function breathe() {
+            if (!reverseMode) return;
+            
+            if (isContracting) {
+                label.innerText = "ВДОХ";
+                label.style.opacity = '1';
+                flower.style.transition = `transform ${tOut}s cubic-bezier(0.4, 0, 0.2, 1)`;
+                flower.style.transform = "scale(1.1)";
+            } else {
+                label.innerText = "ВДОХ";
+                label.style.opacity = '1';
+                flower.style.transition = `transform ${tIn}s cubic-bezier(0.4, 0, 0.2, 1)`;
+                flower.style.transform = "scale(0.9)";
+            }
+            
+            // Считаем циклы дыхания для напоминаний
+            if (!isContracting) {
+                breathCount++;
+                if (sensoryEnabled && breathCount % 5 === 0) {
+                    triggerSensory();
+                }
+            }
+            
+            isContracting = !isContracting;
+            breathInterval = setTimeout(breathe, (isContracting ? tIn : tOut) * 1000);
+        }
+        
+        breathe();
+    }
+
+    function stopReverseBreathing() {
+        if (breathInterval) {
+            clearTimeout(breathInterval);
+            breathInterval = null;
+        }
+    }
+
+    function toggleSensoryMode() {
+        sensoryEnabled = !sensoryEnabled;
+        const toggle = document.getElementById('sensory-toggle');
+        if (sensoryEnabled) {
+            toggle.classList.add('active');
+            toggle.innerHTML = 'НАПОМИНАНИЯ';
+            // Сбрасываем счётчик и показываем первое напоминание
+            breathCount = 0;
+        } else {
+            toggle.classList.remove('active');
+            toggle.innerHTML = 'НАПОМИНАНИЯ';
+        }
+    }
+
+    function startGame() { 
+        document.getElementById('intro-modal').style.display = 'none'; 
+    }
+
+    function addPrana(v) { 
+        prana += v; 
+        document.getElementById('prana-val').innerText = Math.floor(prana); 
+        localStorage.setItem('prana_v22', prana); 
+        if (Math.floor(prana) % 10 === 0 && v > 0) {
+            const f = document.getElementById('flower-svg-container');
+            f.classList.add('prana-glow');
+            setTimeout(() => {
+                f.classList.remove('prana-glow');
+            }, 1500);
+        }
+    }
+
+    function toggleVideo() {
+        const vc = document.getElementById('video-container');
+        const frame = document.getElementById('vk-video');
+        if(vc.style.display === 'block') { 
+            vc.style.display = 'none'; 
+            frame.src = ""; 
+        }
+        else { 
+            vc.style.display = 'block'; 
+            frame.src = "https://vk.com/video_ext.php?oid=-186690269&id=456239332&hash=f593881523457a41"; 
+        }
+    }
+
+    function startMode(m) { 
+        mode = m; 
+        currentInput = ""; 
+        charIdx = 0; 
+        if (mode === 4) {
+            phraseIdx = 0;
+        }
+        document.getElementById('game-layer').style.display = 'flex'; 
+        renderGame(); 
+    }
+    
+    function exitGame() { 
+        mode = 0; 
+        document.getElementById('game-layer').style.display = 'none'; 
+    }
+
+    function renderGame() {
+        const task = document.getElementById('task-content');
+        const keys = document.getElementById('keys-container');
+        const view = document.getElementById('input-buffer');
+        keys.innerHTML = ''; 
+        view.innerText = "";
+        let info = "";
+        
+        if (mode === 1) {
+            info = "МЕДИТАЦИЯ: Вспомни код каждой буквы.";
+            const p = meditationPhrases[phraseIdx % meditationPhrases.length].toUpperCase();
+            let h = '<div style="font-size:1.3rem; letter-spacing:3px;">'; 
+            let letterIndex = 0;
+            for(let i=0; i<p.length; i++) {
+                const char = p[i];
+                const isSpace = char === ' ';
+                const color = isSpace ? 'transparent' : (letterIndex < charIdx ? 'var(--correct)' : 'rgba(255,236,139,0.25)');
+                const displayChar = isSpace ? '&nbsp;' : char;
+                h += `<span style="color:${color}; transition:color 0.3s; ${isSpace ? 'margin:0 8px;' : ''}">${displayChar}</span>`;
+                if (!isSpace) letterIndex++;
+            }
+            task.innerHTML = `<div class="mode-desc">${info}</div>` + h + '</div>';
+            drawNumpad(keys, true);
+        } else if (mode === 2) {
+            info = "СИМВОЛ: Угадай букву.";
+            const l = Object.keys(letterMap); 
+            const t = l[Math.floor(Math.random()*l.length)];
+            task.innerHTML = `<div class="mode-desc">${info}</div>` + getShapeHTML(t, true, true);
+            task.dataset.ans = t; 
+            drawAlpha(keys, t);
+        } else if (mode === 3) {
+            info = "АРИФМЕТИКА: Выбери ответ.";
+            const l = Object.keys(letterMap); 
+            const a = l[Math.floor(Math.random()*l.length)], b = l[Math.floor(Math.random()*l.length)];
+            targetVal = parseInt(letterMap[a].code) + parseInt(letterMap[b].code);
+            task.innerHTML = `<div class="mode-desc">${info}</div><div style="display:flex; align-items:center; justify-content:center; gap:15px;">${getShapeHTML(a)}<span style="font-size:1.5rem; color:var(--amber);">+</span>${getShapeHTML(b)}</div>`;
+            drawOptions(keys);
+        } else if (mode === 4) {
+            info = "ВЕС СЛОВА: Сложи коды всех букв.";
+            const w = wordWeightPhrases[phraseIdx].toUpperCase();
+            targetVal = 0; 
+            [...w].forEach(c => {
+                if (c !== ' ' && letterMap[c]) {
+                    targetVal += parseInt(letterMap[c].code);
+                }
+            });
+            task.innerHTML = `<div class="mode-desc">${info} (${phraseIdx + 1}/${wordWeightPhrases.length})</div><div style="font-size:1.5rem; letter-spacing:3px; color:var(--gold); text-shadow:0 0 20px var(--glow-gold); max-width:90%; line-height:1.4;">${w}</div>`;
+            drawNumpad(keys, false);
+        }
+    }
+
+    function getShapeHTML(l, isB, sC) { 
+        const d = letterMap[l]; 
+        const size = isB ? 'width:80px;height:80px;font-size:2rem;' : 'width:55px;height:55px;';
+        return `<div class="shape ${d.shape} ${d.color}" style="${size}box-shadow:0 4px 20px rgba(0,0,0,0.3);"><span style="text-shadow:0 1px 3px rgba(0,0,0,0.3);">${sC?d.code:l}</span></div>`; 
+    }
+
+    function drawNumpad(el, auto) {
+        el.className = 'grid-num';
+        for(let i=1; i<=9; i++) addK(el, i, () => { 
+            if(isProcessing) return; 
+            if(auto) { 
+                currentInput=i; 
+                check(); 
+            } else { 
+                currentInput+=i; 
+                document.getElementById('input-buffer').innerText = currentInput; 
+            } 
+        });
+        addK(el, 'C', () => { 
+            currentInput=""; 
+            document.getElementById('input-buffer').innerText=""; 
+        });
+        addK(el, '0', () => { 
+            if(auto) { 
+                currentInput=0; 
+                check(); 
+            } else { 
+                currentInput+='0'; 
+                document.getElementById('input-buffer').innerText = currentInput; 
+            } 
+        });
+        if(!auto) addK(el, 'OK', check);
+    }
+    
+    function drawOptions(el) { 
+        el.className = 'grid-options'; 
+        let opts = [targetVal]; 
+        while(opts.length < 4) { 
+            let r = targetVal + Math.floor(Math.random()*7)-3; 
+            if(r>0 && !opts.includes(r)) opts.push(r); 
+        } 
+        opts.sort(()=>Math.random()-0.5).forEach(o => addK(el, o, () => { 
+            currentInput=o; 
+            check(); 
+        })); 
+    }
+
+    function drawAlpha(el, target) {
+        el.className = 'grid-alpha';
+        "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".split('').forEach(l => {
+            const b=document.createElement('button'); 
+            b.className='k'; 
+            b.innerText=l; 
+            b.style.fontSize='13px'; 
+            b.style.padding='12px 0';
+            b.onclick=()=>{ 
+                if(isProcessing) return; 
+                if(l===target){
+                    addPrana(30); 
+                    renderGame();
+                } 
+            }; 
+            el.appendChild(b);
+        });
+    }
+
+    function addK(el, t, fn) { 
+        const b=document.createElement('button'); 
+        b.className='k'; 
+        b.innerText=t; 
+        b.onclick=fn; 
+        el.appendChild(b); 
+    }
+
+    function check() {
+        if (isProcessing) return;
+        const view = document.getElementById('input-buffer');
+        if (mode === 1) {
+            const p = meditationPhrases[phraseIdx % meditationPhrases.length].toUpperCase();
+            let currentLetterIdx = 0;
+            let targetChar = '';
+            for(let i=0; i<p.length; i++) {
+                if(p[i] !== ' ') {
+                    if(currentLetterIdx === charIdx) {
+                        targetChar = p[i];
+                        break;
+                    }
+                    currentLetterIdx++;
+                }
+            }
+            
+            if (targetChar && letterMap[targetChar].code == currentInput) { 
+                charIdx++; 
+                addPrana(15); 
+                const totalLetters = [...p].filter(c => c !== ' ').length;
+                if (charIdx >= totalLetters) { 
+                    charIdx = 0; 
+                    phraseIdx = (phraseIdx + 1) % meditationPhrases.length; 
+                    addPrana(50); 
+                } 
+            }
+            else { 
+                charIdx = 0; 
+            }
+            currentInput = ""; 
+            renderGame();
+        } else if (mode === 4) {
+            isProcessing = true;
+            const isCorrect = parseInt(currentInput) === targetVal;
+            if (isCorrect) { 
+                view.innerText = "✨ ВЕРНО"; 
+                view.style.color = "var(--correct)";
+                addPrana(40); 
+                phraseIdx++;
+                if (phraseIdx >= wordWeightPhrases.length) {
+                    phraseIdx = 0;
+                }
+                setTimeout(() => { 
+                    currentInput = ""; 
+                    renderGame(); 
+                    isProcessing = false; 
+                }, 700); 
+            }
+            else { 
+                view.innerText = "❌"; 
+                view.style.color = "#ff6b6b";
+                setTimeout(() => { 
+                    currentInput = ""; 
+                    view.innerText = ""; 
+                    isProcessing = false; 
+                }, 600); 
+            }
+        } else {
+            isProcessing = true; 
+            const isCorrect = parseInt(currentInput) === targetVal;
+            if (isCorrect) { 
+                view.innerText = "✨ ВЕРНО"; 
+                view.style.color = "var(--correct)";
+                addPrana(40); 
+                setTimeout(() => { 
+                    currentInput = ""; 
+                    renderGame(); 
+                    isProcessing = false; 
+                }, 700); 
+            }
+            else { 
+                view.innerText = "❌"; 
+                view.style.color = "#ff6b6b";
+                setTimeout(() => { 
+                    currentInput = ""; 
+                    view.innerText = ""; 
+                    isProcessing = false; 
+                }, 600); 
+            }
+        }
+    }
+    
+    function toggleRef() { 
+        const m = document.getElementById('ref-modal'); 
+        m.style.display = m.style.display === 'block' ? 'none' : 'block'; 
+        if(m.style.display === 'block') { 
+            const c = document.getElementById('ref-content'); 
+            c.innerHTML = ''; 
+            for(let l in letterMap) { 
+                const d = letterMap[l]; 
+                c.innerHTML += `
+                    <div class="ref-item">
+                        <div style="font-size:1.2rem; color:var(--gold); margin-bottom:5px;">${l}</div>
+                        <div class="shape ${d.shape} ${d.color}" style="width:35px;height:35px;margin:8px auto;font-size:12px;">
+                            <span>${d.code}</span>
+                        </div>
+                    </div>
+                `; 
+            } 
+        } 
+    }
+    
+    function triggerSensory() {
+        const randomMsg = sensory[Math.floor(Math.random() * sensory.length)];
+        document.getElementById('msg-text').innerText = randomMsg;
+        document.getElementById('flash-msg').style.display = 'flex';
+    }
+
+    function goBack() {
+        window.history.back();
+    }
+</script>
+</body>
+</html>

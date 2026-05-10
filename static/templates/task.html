@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day {{ task.day_number }} Task</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}">
+</head>
+<body>
+    <!-- Video Container for VK videos -->
+    <div id="video-container" style="display: none;">
+        <button class="video-close" onclick="toggleVideo()">×</button>
+        <iframe id="vk-video" src="" style="background-color: #000" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    <div class="container">
+        <div class="intro-message" style="background: #f0f4f8; border-left: 5px solid #2c3e50; padding: 20px; margin-bottom: 30px;">
+            <h2>Здравствуй, дорогой и уважаемый участник марафона!</h2>
+            <p>Прочти задание дня и напиши в течение дня отчет о выполнении этой практики, тебе начислятся лучики, напиши комментарий, сделай репост, опубликуй сторис и за каждое это действие начисли себе лучики. Лучики ты сможешь направить на приобретение обучающих курсов и скидки на индивидуальную работу в области духовной практики.</p>
+            <p><b>День {{ task.day_number }}: {{ task.title }}</b></p>
+        </div>
+        
+        <h1>Задание дня: {{ task.title }}</h1>
+        <p>{{ task.content }}</p>
+        {% if task.video_url %}
+            <div class="video-container">
+                <h3>Видео к заданию:</h3>
+                {% if 'youtube.com' in task.video_url or 'youtu.be' in task.video_url %}
+                    <!-- YouTube embed -->
+                    {% if 'youtube.com/watch?v=' in task.video_url %}
+                        {% set video_id = task.video_url.split('v=')[1].split('&')[0] %}
+                    {% elif 'youtu.be/' in task.video_url %}
+                        {% set video_id = task.video_url.split('youtu.be/')[1].split('?')[0] %}
+                    {% endif %}
+                    <iframe width="600" height="338" src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allowfullscreen></iframe>
+                {% elif 'video_ext.php' in task.video_url or 'vk.com/video' in task.video_url %}
+                    <!-- VK video embed button -->
+                    <div class="video-buttons-group">
+                        <button onclick="openVKVideo('{{ task.video_url }}')" class="video-link">▶ Смотреть видео</button>
+                        <button onclick="openVKComments('{{ task.video_url }}')" class="video-link comment-btn">💬 Комментарий в ВК</button>
+                    </div>
+                {% else %}
+                    <!-- Generic video link -->
+                    <p><a href="{{ task.video_url }}" target="_blank" class="video-link">Смотреть видео →</a></p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="rays-section" id="raysSection">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0;">✨ Начисли себе лучики за действия:</h3>
+                <button class="mining-toggle" onclick="toggleMiningMode()">🔮 Майнинг золотой пыльцы</button>
+            </div>
+            <div class="rays-buttons">
+                <button class="ray-btn" data-action="repost" data-rays="1">📱 Репост (+1)</button>
+                <button class="ray-btn" data-action="comment" data-rays="1">💬 Комментарий (+1)</button>
+                <button class="ray-btn" data-action="story" data-rays="1">✨ Сторис (+1)</button>
+                <button class="ray-btn" data-action="share" data-rays="1">📤 Отправил другу (+1)</button>
+                <button class="ray-btn" data-action="donate" data-rays="1">❤️ Донатер (+1)</button>
+                <button class="ray-btn" data-action="topic" data-rays="2">💡 Идея темы (+2)</button>
+            </div>
+            <div id="balance-display">💰 Твой баланс: <strong>{{ user_rays }}</strong> лучиков</div>
+        </div>
+
+        <!-- Mining canvas for particle effects -->
+        <canvas id="miningCanvas" style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999;"></canvas>
+
+        <h2>Submit Your Report</h2>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        {% if not report_submitted %}
+            <form action="/submit_report/{{ user_id }}/{{ task.day_number }}" method="post">
+                <textarea name="report_text" rows="10" cols="50" placeholder="Write your report here..."></textarea><br><br>
+                <input type="submit" value="Submit Report">
+            </form>
+        {% else %}
+            <p>You have already submitted a report for today!</p>
+        {% endif %}
+
+        <p><a href="/">Back to Home</a> | <a href="/logout">Logout</a></p>
+    </div>
+
+    <script>
+        const userId = {{ user_id }};
+        let miningMode = false;
+        let miningParticles = [];
+
+        // Canvas setup for particles
+        const canvas = document.getElementById('miningCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // VK Video functions
+        function toggleVideo() {
+            const vc = document.getElementById('video-container');
+            const frame = document.getElementById('vk-video');
+            if(vc.style.display === 'block') {
+                vc.style.display = 'none';
+                frame.src = "";
+            }
+            else {
+                vc.style.display = 'block';
+            }
+        }
+
+        function openVKVideo(videoUrl) {
+            const vc = document.getElementById('video-container');
+            const frame = document.getElementById('vk-video');
+            vc.style.display = 'block';
+            // Добавляем параметры к URL если их нет
+            if (!videoUrl.includes('allow')) {
+                videoUrl = videoUrl.split('?')[0] + '?' + videoUrl.split('?')[1] + '&autoplay=1';
+            }
+            frame.src = videoUrl;
+        }
+
+        function openVKComments(videoUrl) {
+            // Извлекаем oid и id из URL video_ext.php
+            const urlParams = new URLSearchParams(videoUrl.split('?')[1]);
+            let oid = urlParams.get('oid');
+            let id = urlParams.get('id');
+
+            // Конвертируем oid (если отрицательный, меняем на положительный)
+            if (oid.startsWith('-')) {
+                oid = oid.substring(1);
+            }
+
+            // Формируем ссылку на видео в ВК
+            const vkVideoLink = `https://vk.com/video-${oid}_${id}`;
+            window.open(vkVideoLink, '_blank');
+        }
+
+        // Mining mode functions
+        function toggleMiningMode() {
+            const toggle = event.target;
+
+            // Отправляем запрос на добавление 5 лучиков
+            addMiningRays(toggle);
+        }
+
+        async function addMiningRays(toggle) {
+            try {
+                const response = await fetch(`/add_rays/${userId}/mining`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update balance display
+                    document.getElementById('balance-display').innerHTML =
+                        `💰 Твой баланс: <strong>${data.new_balance}</strong> лучиков`;
+
+                    // Visual feedback
+                    toggle.style.borderColor = '#FFD700';
+                    toggle.style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.6)';
+
+                    setTimeout(() => {
+                        toggle.style.borderColor = '';
+                        toggle.style.boxShadow = '';
+                    }, 500);
+
+                    // Открываем Solfeggio
+                    setTimeout(() => {
+                        window.location.href = '/solfeggio';
+                    }, 300);
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при добавлении лучиков');
+            }
+        }
+
+        function startMining() {
+            // Генерируем частицы каждые 100ms
+            const miningInterval = setInterval(() => {
+                if (!miningMode) {
+                    clearInterval(miningInterval);
+                    return;
+                }
+
+                for (let i = 0; i < 3; i++) {
+                    createMiningParticle();
+                }
+            }, 100);
+        }
+
+        function stopMining() {
+            miningParticles = [];
+        }
+
+        function createMiningParticle() {
+            const raysSection = document.getElementById('raysSection');
+            const rect = raysSection.getBoundingClientRect();
+
+            const particle = {
+                x: Math.random() * rect.width + rect.left,
+                y: rect.top + rect.height,
+                vx: (Math.random() - 0.5) * 4,
+                vy: -Math.random() * 3 - 2,
+                life: 1,
+                type: Math.random() > 0.5 ? 'dust' : 'sparkle',
+                size: Math.random() * 3 + 2
+            };
+
+            miningParticles.push(particle);
+        }
+
+        function createClickParticles(x, y, rays) {
+            // Создаем частицы при клике на кнопку
+            const count = rays * 5;
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 * i) / count;
+                const particle = {
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * (3 + Math.random() * 2),
+                    vy: Math.sin(angle) * (3 + Math.random() * 2),
+                    life: 1,
+                    type: 'spark',
+                    size: Math.random() * 2 + 1
+                };
+                miningParticles.push(particle);
+            }
+        }
+
+        function drawParticles() {
+            miningParticles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.1; // gravity
+                p.life -= 0.01;
+
+                if (p.life <= 0) {
+                    miningParticles.splice(i, 1);
+                    return;
+                }
+
+                ctx.save();
+                ctx.globalAlpha = p.life;
+
+                if (p.type === 'dust') {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#FFD700';
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (p.type === 'sparkle') {
+                    ctx.fillStyle = '#FFFF99';
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#FFD700';
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (p.type === 'spark') {
+                    ctx.fillStyle = '#FFA500';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = '#FFA500';
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            });
+
+            if (miningMode || miningParticles.length > 0) {
+                requestAnimationFrame(drawParticles);
+            }
+        }
+
+        // Start animation loop
+        drawParticles();
+
+        document.querySelectorAll('.ray-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const action = this.dataset.action;
+                const rays = this.dataset.rays;
+
+                try {
+                    const response = await fetch(`/add_rays/${userId}/${action}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Update balance display
+                        document.getElementById('balance-display').innerHTML =
+                            `💰 Твой баланс: <strong>${data.new_balance}</strong> лучиков`;
+
+                        // Create particle effect on click
+                        const rect = this.getBoundingClientRect();
+                        const x = rect.left + rect.width / 2;
+                        const y = rect.top + rect.height / 2;
+                        createClickParticles(x, y, parseInt(rays));
+
+                        // Visual feedback
+                        this.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 100);
+
+                        // Flash effect
+                        const originalBorder = this.style.borderColor;
+                        this.style.borderColor = '#FFD700';
+                        this.style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.6)';
+
+                        setTimeout(() => {
+                            this.style.borderColor = originalBorder;
+                            this.style.boxShadow = '';
+                        }, 300);
+                    } else {
+                        alert('Ошибка: ' + data.error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при добавлении лучиков');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

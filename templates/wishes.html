@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Книга Желаний - Луновий Марафон</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0B1026 0%, #1a0a2e 100%);
+            color: #E0E0E0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .wishes-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .wishes-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .wishes-header h1 {
+            font-size: 2.5em;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .wishes-header p {
+            color: rgba(255, 215, 0, 0.7);
+            font-size: 1.1em;
+            letter-spacing: 2px;
+        }
+
+        .balance-display {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .balance-display span {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 1.3em;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .wish-form {
+            background: rgba(42, 47, 74, 0.6);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .wish-form h3 {
+            color: #FFD700;
+            margin-top: 0;
+            letter-spacing: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255, 215, 0, 0.8);
+            margin-bottom: 8px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .form-group textarea,
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            color: #E0E0E0;
+            font-family: inherit;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group textarea:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(255, 215, 0, 0.6);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #0B1026;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .wishes-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .wish-card {
+            background: rgba(42, 47, 74, 0.4);
+            border-left: 4px solid #FFD700;
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .wish-card:hover {
+            background: rgba(42, 47, 74, 0.6);
+            transform: translateX(10px);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .wish-card.fulfilled {
+            border-left-color: #4CAF50;
+            opacity: 0.7;
+        }
+
+        .wish-text {
+            color: #FFD700;
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .wish-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: rgba(255, 215, 0, 0.6);
+        }
+
+        .wish-cost {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .wish-date {
+            color: rgba(255, 215, 0, 0.5);
+        }
+
+        .fulfill-btn {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .fulfill-btn:hover {
+            background: rgba(76, 175, 80, 0.5);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .back-link {
+            color: #FFD700;
+            text-decoration: none;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transform: translateX(-5px);
+        }
+
+        .empty-wishes {
+            text-align: center;
+            color: rgba(255, 215, 0, 0.5);
+            padding: 40px 20px;
+            font-size: 1.1em;
+        }
+
+        .om-symbol {
+            font-size: 2em;
+            color: #FFD700;
+            margin-right: 10px;
+        }
+
+        @keyframes burn-effect {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        .burning {
+            animation: burn-effect 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="wishes-container">
+        <div style="margin-bottom: 20px;">
+            <a href="/" class="back-link">← Назад к марафону</a>
+            <span style="color: rgba(255, 215, 0, 0.5); margin: 0 10px;">|</span>
+            <a href="/public-feed" class="back-link">✨ Публичный Форум</a>
+            <span style="color: rgba(255, 215, 0, 0.5); margin: 0 10px;">|</span>
+            <a href="/send-rays" class="back-link">💝 Подарить Лучики</a>
+        </div>
+
+        <div class="wishes-header">
+            <h1><span class="om-symbol">ॐ</span>КНИГА ЖЕЛАНИЙ</h1>
+            <p>Гармония намерения и алгоритма исполнения</p>
+        </div>
+
+        <div class="balance-display">
+            💰 Твой баланс лучиков: <span id="balance">{{ user_rays }}</span>
+        </div>
+
+        <div class="wish-form">
+            <h3>✨ Запиши своё желание</h3>
+            <form id="wishForm" onsubmit="createWish(event)">
+                <div class="form-group">
+                    <label for="wishText">Твоё желание (с ОМ гармонией)</label>
+                    <textarea id="wishText" placeholder="Напиши своё искреннее желание...&#10;ОМ будет добавлен автоматически" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="raysCost">Сколько лучиков сжечь? (1-{{ user_rays }})</label>
+                    <input type="number" id="raysCost" min="1" max="{{ user_rays }}" value="10" required>
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <input type="checkbox" id="isPublic" style="width: auto; margin-right: 10px;">
+                    <label for="isPublic" style="margin-bottom: 0;">Поделиться желанием в публичном форуме 🌍</label>
+                </div>
+
+                <button type="submit" class="submit-btn">🔥 Сжечь лучики и записать желание</button>
+            </form>
+        </div>
+
+        <div class="wishes-list">
+            <h2 style="color: #FFD700; letter-spacing: 2px;">📜 Истории твоих желаний</h2>
+
+            {% if wishes %}
+                {% for wish in wishes %}
+                    <div class="wish-card {% if wish.status == 'fulfilled' %}fulfilled{% endif %}" id="wish-{{ wish.id }}">
+                        <div class="wish-text">{{ wish.text }}</div>
+                        <div class="wish-meta">
+                            <span class="wish-date">{{ wish.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                            <span class="wish-cost">🔥 {{ wish.rays_burned }} лучиков</span>
+                            {% if wish.status != 'fulfilled' %}
+                                <button class="fulfill-btn" onclick="fulfillWish({{ wish.id }})">✓ Исполнено</button>
+                            {% else %}
+                                <span style="color: #4CAF50; font-weight: bold;">✨ Исполнено</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-wishes">
+                    <p>ॐ Твоя книга желаний пока пуста...</p>
+                    <p>Запиши первое желание и сожги лучики для его исполнения! ✨</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        const userId = {{ user_id }};
+
+        async function createWish(event) {
+            event.preventDefault();
+
+            const wishText = document.getElementById('wishText').value.trim();
+            const raysCost = parseInt(document.getElementById('raysCost').value);
+            const isPublic = document.getElementById('isPublic').checked;
+
+            if (!wishText) {
+                alert('Пожалуйста, напиши своё желание');
+                return;
+            }
+
+            try {
+                const response = await fetch('/create_wish', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        wish: wishText,
+                        rays: raysCost,
+                        is_public: isPublic
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Обновляем баланс
+                    document.getElementById('balance').textContent = data.new_balance;
+
+                    // Очищаем форму
+                    document.getElementById('wishForm').reset();
+
+                    // Показываем сообщение
+                    alert(data.message);
+
+                    // Перезагружаем страницу для обновления списка
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при создании желания');
+            }
+        }
+
+        async function fulfillWish(wishId) {
+            if (!confirm('Отметить это желание как исполнённое?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/wish/${wishId}/fulfill`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Показываем эффект
+                    const card = document.getElementById(`wish-${wishId}`);
+                    card.classList.add('fulfilled');
+
+                    // Обновляем кнопку
+                    const btn = card.querySelector('.fulfill-btn');
+                    if (btn) {
+                        btn.outerHTML = '<span style="color: #4CAF50; font-weight: bold;">✨ Исполнено</span>';
+                    }
+
+                    // Эффект сожжения
+                    card.classList.add('burning');
+                    setTimeout(() => card.classList.remove('burning'), 600);
+
+                    alert(data.message);
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка');
+            }
+        }
+    </script>
+</body>
+</html>

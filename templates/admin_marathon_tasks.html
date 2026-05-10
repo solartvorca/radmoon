@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Marathon Tasks - {{ marathon.name }}</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}">
+    <style>
+        .tasks-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #333;
+        }
+
+        .publish-btn {
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .publish-btn:hover {
+            background: #45a049;
+        }
+
+        .publish-btn.unpublish {
+            background: #f44336;
+        }
+
+        .publish-btn.unpublish:hover {
+            background: #da190b;
+        }
+
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .task-day {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+        }
+
+        .task-day:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .task-day .day-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .task-day .task-title {
+            font-size: 0.9em;
+            opacity: 0.9;
+            min-height: 2.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: #000;
+        }
+
+        .modal h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-save {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #5568d3;
+        }
+
+        .btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-cancel:hover {
+            background: #d0d0d0;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .task-count {
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="tasks-container">
+        <a href="/admin-secret-portal" class="back-link">← Back to Admin Portal</a>
+
+        <div class="header">
+            <div>
+                <h1>{{ marathon.name }} - Task Management</h1>
+                <div class="task-count" id="taskCount">Loading...</div>
+            </div>
+            <button class="publish-btn" id="publishBtn" onclick="togglePublish()">Publish Marathon</button>
+        </div>
+
+        <div class="task-grid" id="taskGrid">
+            <!-- Tasks will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Modal for editing task -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Day <span id="modalDayNumber"></span></h2>
+            <form id="editTaskForm">
+                <input type="hidden" id="editDayNumber">
+                <div class="form-group">
+                    <label for="editTitle">Title *</label>
+                    <input type="text" id="editTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="editContent">Content</label>
+                    <textarea id="editContent"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editVideoUrl">Video URL</label>
+                    <input type="text" id="editVideoUrl" placeholder="https://vk.com/video...">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn btn-save">Save Task</button>
+                    <button type="button" class="btn btn-cancel" onclick="closeEditModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const marathonId = {{ marathon.id }};
+
+        // Load all 28 days
+        function loadTasks() {
+            const taskGrid = document.getElementById('taskGrid');
+            taskGrid.innerHTML = '';
+
+            for (let day = 1; day <= 28; day++) {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task-day';
+                taskDiv.innerHTML = `
+                    <div class="day-number">Day ${day}</div>
+                    <div class="task-title" id="title-${day}">Click to edit</div>
+                `;
+                taskDiv.onclick = () => openEditModal(day);
+                taskGrid.appendChild(taskDiv);
+
+                // Load task details
+                fetchTaskDetails(day);
+            }
+
+            updateTaskCount();
+        }
+
+        async function fetchTaskDetails(day) {
+            try {
+                const response = await fetch(`/admin-secret-portal/marathons/${marathonId}/task/${day}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById(`title-${day}`).textContent = data.title || 'Click to edit';
+                }
+            } catch (error) {
+                console.error('Error fetching task:', error);
+            }
+        }
+
+        function openEditModal(day) {
+            document.getElementById('modalDayNumber').textContent = day;
+            document.getElementById('editDayNumber').value = day;
+
+            fetch(`/admin-secret-portal/marathons/${marathonId}/task/${day}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.title) {
+                        document.getElementById('editTitle').value = data.title;
+                        document.getElementById('editContent').value = data.content || '';
+                        document.getElementById('editVideoUrl').value = data.video_url || '';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('editTitle').value = '';
+                    document.getElementById('editContent').value = '';
+                    document.getElementById('editVideoUrl').value = '';
+                });
+
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        document.getElementById('editTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const day = parseInt(document.getElementById('editDayNumber').value);
+            const data = new FormData();
+            data.append('title', document.getElementById('editTitle').value);
+            data.append('content', document.getElementById('editContent').value);
+            data.append('video_url', document.getElementById('editVideoUrl').value);
+
+            try {
+                const response = await fetch(`/admin-secret-portal/marathons/${marathonId}/task/${day}`, {
+                    method: 'POST',
+                    body: data
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('Task saved!');
+                        closeEditModal();
+                        fetchTaskDetails(day);
+                        updateTaskCount();
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to save task');
+            }
+        });
+
+        async function togglePublish() {
+            const publishBtn = document.getElementById('publishBtn');
+            const willPublish = !publishBtn.classList.contains('unpublish');
+
+            try {
+                const response = await fetch(`/admin-secret-portal/marathons/${marathonId}/publish`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ publish: willPublish })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    if (willPublish) {
+                        publishBtn.textContent = 'Unpublish Marathon';
+                        publishBtn.classList.add('unpublish');
+                        alert('Marathon published!');
+                    } else {
+                        publishBtn.textContent = 'Publish Marathon';
+                        publishBtn.classList.remove('unpublish');
+                        alert('Marathon unpublished');
+                    }
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to publish');
+            }
+        }
+
+        function updateTaskCount() {
+            const count = document.querySelectorAll('.task-day').length;
+            const completed = Array.from(document.querySelectorAll('.task-title'))
+                .filter(el => el.textContent !== 'Click to edit').length;
+            document.getElementById('taskCount').textContent = `${completed}/28 tasks created`;
+        }
+
+        window.onclick = (event) => {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        };
+
+        // Load tasks on page load
+        loadTasks();
+    </script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Самокоучинг - Луновий Марафон</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0B1026 0%, #1a0a2e 100%);
+            color: #E0E0E0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .coaching-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .coaching-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .coaching-header h1 {
+            font-size: 2.5em;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .coaching-header p {
+            color: rgba(255, 215, 0, 0.7);
+            font-size: 1.1em;
+            letter-spacing: 2px;
+        }
+
+        .back-link {
+            color: #FFD700;
+            text-decoration: none;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transform: translateX(-5px);
+        }
+
+        .balance-display {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .balance-display span {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 1.3em;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            color: #FFD700;
+            font-size: 1.8em;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        .wishes-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .wish-card {
+            background: rgba(42, 47, 74, 0.5);
+            border-left: 4px solid #FFD700;
+            border-radius: 12px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .wish-card:hover {
+            background: rgba(42, 47, 74, 0.7);
+            transform: translateX(10px);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .wish-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .wish-text {
+            color: #FFD700;
+            font-size: 1.1em;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .wish-author {
+            background: rgba(255, 215, 0, 0.1);
+            color: #FFD700;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .wish-own {
+            border-left-color: #4CAF50;
+        }
+
+        .wish-own .wish-text {
+            color: #4CAF50;
+        }
+
+        .wish-own .wish-author {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .vote-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .vote-stat {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .vote-stat.like {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: rgba(76, 175, 80, 0.3);
+        }
+
+        .vote-stat.dislike {
+            background: rgba(244, 67, 54, 0.1);
+            border-color: rgba(244, 67, 54, 0.3);
+        }
+
+        .vote-stat-number {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #FFD700;
+        }
+
+        .vote-stat.like .vote-stat-number {
+            color: #4CAF50;
+        }
+
+        .vote-stat.dislike .vote-stat-number {
+            color: #F44336;
+        }
+
+        .voters-list {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .voters-title {
+            color: rgba(255, 215, 0, 0.7);
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .voter-item {
+            padding: 8px;
+            border-left: 3px solid #FFD700;
+            margin-bottom: 5px;
+            color: rgba(224, 224, 224, 0.8);
+            font-size: 0.9em;
+        }
+
+        .voter-item.dislike {
+            border-left-color: #F44336;
+        }
+
+        .vote-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .vote-input {
+            width: 70px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 4px;
+            color: #FFD700;
+            text-align: center;
+        }
+
+        .vote-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .like-btn {
+            background: rgba(76, 175, 80, 0.4);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        .like-btn:hover {
+            background: rgba(76, 175, 80, 0.6);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .dislike-btn {
+            background: rgba(244, 67, 54, 0.4);
+            border: 1px solid #F44336;
+            color: #F44336;
+        }
+
+        .dislike-btn:hover {
+            background: rgba(244, 67, 54, 0.6);
+            box-shadow: 0 0 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .empty-message {
+            text-align: center;
+            color: rgba(255, 215, 0, 0.5);
+            padding: 40px 20px;
+            font-size: 1.1em;
+        }
+
+        .om-symbol {
+            font-size: 1.5em;
+            color: #FFD700;
+            margin-right: 8px;
+        }
+
+        .info-box {
+            background: rgba(135, 206, 235, 0.1);
+            border-left: 4px solid #87CEEB;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: rgba(224, 224, 224, 0.9);
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: #87CEEB;
+        }
+    </style>
+</head>
+<body>
+    <div class="coaching-container">
+        <a href="/" class="back-link">← Назад к марафону</a>
+
+        <div class="coaching-header">
+            <h1>🎯 САМОКОУЧИНГ</h1>
+            <p>Поддержка целей и желаний сообщества</p>
+        </div>
+
+        <div class="balance-display">
+            💰 Твой баланс лучиков: <span id="balance">{{ user_rays }}</span>
+        </div>
+
+        <div class="info-box">
+            <strong>💡 Как это работает:</strong>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>Опубликуй своё желание в книге желаний с опцией "Поделиться в форуме"</li>
+                <li>Другие пользователи будут голосовать за твои цели лучиками ✅ или ❌</li>
+                <li>Поддерживай цели других, сжигая лучики в их поддержку</li>
+                <li>Вверху видишь ТВ желания с голосами сообщества</li>
+            </ul>
+        </div>
+
+        <!-- My Wishes Section -->
+        <div class="section">
+            <div class="section-title">🏆 Твои Цели и Желания</div>
+
+            {% if user_wishes %}
+                <div class="wishes-grid">
+                    {% for wish in user_wishes %}
+                        <div class="wish-card wish-own">
+                            <div class="wish-header">
+                                <div class="wish-text">
+                                    <span class="om-symbol">ॐ</span>{{ wish.text }}
+                                </div>
+                                <div class="wish-author">Твоё желание</div>
+                            </div>
+
+                            <div class="vote-stats">
+                                <div class="vote-stat like">
+                                    👍 <span class="vote-stat-number">{{ wish.likes }}</span>
+                                    <br><small>{{ wish.total_rays_support }} лучиков</small>
+                                </div>
+                                <div class="vote-stat dislike">
+                                    👎 <span class="vote-stat-number">{{ wish.dislikes }}</span>
+                                    <br><small>{{ wish.total_rays_dislike }} лучиков</small>
+                                </div>
+                            </div>
+
+                            {% if wish.votes %}
+                                <div class="voters-list">
+                                    <div class="voters-title">👥 Проголосовали:</div>
+                                    {% for vote in wish.votes %}
+                                        <div class="voter-item {% if vote.vote_type == 'dislike' %}dislike{% endif %}">
+                                            👤 <strong>{{ vote.voter.username }}</strong>
+                                            {% if vote.vote_type == 'like' %}
+                                                ✅ за ({{ vote.rays_amount }} лучиков)
+                                            {% else %}
+                                                ❌ против ({{ vote.rays_amount }} лучиков)
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-message">
+                    Пока нет публичных целей... Создай первую в "Книге Желаний"! ✨
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Public Wishes to Vote Section -->
+        <div class="section">
+            <div class="section-title">💎 Поддержи Цели Сообщества</div>
+
+            {% if public_wishes %}
+                <div class="wishes-grid">
+                    {% for wish in public_wishes %}
+                        <div class="wish-card">
+                            <div class="wish-header">
+                                <div class="wish-text">
+                                    <span class="om-symbol">ॐ</span>{{ wish.text }}
+                                </div>
+                                <div class="wish-author">от {{ wish.user.username }}</div>
+                            </div>
+
+                            <div class="vote-stats">
+                                <div class="vote-stat like">
+                                    👍 <span class="vote-stat-number">{{ wish.likes }}</span>
+                                    <br><small>{{ wish.total_rays_support }} лучиков</small>
+                                </div>
+                                <div class="vote-stat dislike">
+                                    👎 <span class="vote-stat-number">{{ wish.dislikes }}</span>
+                                    <br><small>{{ wish.total_rays_dislike }} лучиков</small>
+                                </div>
+                            </div>
+
+                            {% if wish.votes %}
+                                <div class="voters-list">
+                                    <div class="voters-title">👥 Проголосовали:</div>
+                                    {% for vote in wish.votes %}
+                                        <div class="voter-item {% if vote.vote_type == 'dislike' %}dislike{% endif %}">
+                                            👤 <strong>{{ vote.voter.username }}</strong>
+                                            {% if vote.vote_type == 'like' %}
+                                                ✅ за ({{ vote.rays_amount }} лучиков)
+                                            {% else %}
+                                                ❌ против ({{ vote.rays_amount }} лучиков)
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <div class="vote-controls">
+                                <input type="number" class="vote-input" id="rays-{{ wish.id }}" min="0" value="10" max="1000" placeholder="Лучики">
+                                <button class="vote-btn like-btn" onclick="voteWish({{ wish.id }}, 'like')">👍 За</button>
+                                <button class="vote-btn dislike-btn" onclick="voteWish({{ wish.id }}, 'dislike')">👎 Против</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-message">
+                    Пока нет целей для голосования... Приди позже! 🌙
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        async function voteWish(wishId, voteType) {
+            const raysInput = document.getElementById(`rays-${wishId}`);
+            const raysAmount = parseInt(raysInput.value) || 0;
+
+            try {
+                const response = await fetch(`/vote_wish/${wishId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        vote_type: voteType,
+                        rays: raysAmount
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`✅ ${data.message}`);
+
+                    // Update balance
+                    document.getElementById('balance').textContent = data.new_balance;
+
+                    // Reload page to show updated votes
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    alert('❌ Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Произошла ошибка при голосовании');
+            }
+        }
+    </script>
+</body>
+</html>

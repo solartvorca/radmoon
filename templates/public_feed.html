@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Публичный Форум - Луновий Марафон</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0B1026 0%, #1a0a2e 100%);
+            color: #E0E0E0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .feed-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .feed-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .feed-header h1 {
+            font-size: 2.5em;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .feed-header p {
+            color: rgba(255, 215, 0, 0.7);
+            font-size: 1.1em;
+            letter-spacing: 2px;
+        }
+
+        .back-link {
+            color: #FFD700;
+            text-decoration: none;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transform: translateX(-5px);
+        }
+
+        .feed-section {
+            margin-bottom: 50px;
+        }
+
+        .feed-section h2 {
+            color: #FFD700;
+            letter-spacing: 2px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .feed-items {
+            display: grid;
+            gap: 20px;
+        }
+
+        .feed-item {
+            background: rgba(42, 47, 74, 0.5);
+            border-left: 4px solid #FFD700;
+            border-radius: 12px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .feed-item:hover {
+            background: rgba(42, 47, 74, 0.7);
+            transform: translateX(10px);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .feed-item.wish {
+            border-left-color: #FFD700;
+        }
+
+        .feed-item.report {
+            border-left-color: #87CEEB;
+        }
+
+        .feed-item.report {
+            border-left-color: #87CEEB;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .item-title {
+            font-size: 1.2em;
+            color: #FFD700;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .item-type {
+            background: rgba(255, 215, 0, 0.1);
+            color: #FFD700;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .report .item-type {
+            background: rgba(135, 206, 235, 0.1);
+            color: #87CEEB;
+        }
+
+        .item-content {
+            color: rgba(224, 224, 224, 0.9);
+            line-height: 1.6;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: rgba(255, 215, 0, 0.6);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .item-user {
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .item-date {
+            color: rgba(255, 215, 0, 0.5);
+        }
+
+        .item-meta-badge {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .report .item-meta-badge {
+            background: rgba(135, 206, 235, 0.1);
+            color: #87CEEB;
+        }
+
+        .support-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .support-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 215, 0, 0.15);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .support-btn {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.6), rgba(255, 165, 0, 0.6));
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            color: #FFD700;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .support-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.8), rgba(255, 165, 0, 0.8));
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .support-input {
+            width: 70px;
+            padding: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 4px;
+            color: #FFD700;
+            text-align: center;
+        }
+
+        .ranking-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #0B1026;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: rgba(255, 215, 0, 0.5);
+            padding: 40px 20px;
+            font-size: 1.1em;
+        }
+
+        .om-symbol {
+            font-size: 1.5em;
+            color: #FFD700;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="feed-container">
+        <div style="margin-bottom: 20px;">
+            <a href="/" class="back-link">← Назад к марафону</a>
+            <span style="color: rgba(255, 215, 0, 0.5); margin: 0 10px;">|</span>
+            <a href="/self-coaching" class="back-link">🎯 Самокоучинг</a>
+            <span style="color: rgba(255, 215, 0, 0.5); margin: 0 10px;">|</span>
+            <a href="/send-rays" class="back-link">💝 Подарить Лучики</a>
+        </div>
+
+        <div class="feed-header">
+            <h1>✨ ПУБЛИЧНЫЙ ФОРУМ</h1>
+            <p>Вдохновение и истории практикующих</p>
+        </div>
+
+        <!-- Public Wishes Section -->
+        <div class="feed-section">
+            <h2>📜 Общие Желания и Намерения</h2>
+            <p style="color: rgba(255, 215, 0, 0.6); margin-bottom: 20px;">🔥 Жги лучики в поддержку желаний, которые тебе близки!</p>
+            {% if wishes %}
+                <div class="feed-items">
+                    {% for wish in wishes|sort(attribute='total_support_rays', reverse=True) %}
+                        <div class="feed-item wish">
+                            <div class="item-header">
+                                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                    {% set rank = loop.index %}
+                                    {% if rank == 1 %}
+                                        <span class="ranking-badge">🏆 #1</span>
+                                    {% elif rank == 2 %}
+                                        <span class="ranking-badge">🥈 #{{ rank }}</span>
+                                    {% elif rank == 3 %}
+                                        <span class="ranking-badge">🥉 #{{ rank }}</span>
+                                    {% else %}
+                                        <span class="ranking-badge">#{{ rank }}</span>
+                                    {% endif %}
+                                    <div class="item-title">
+                                        <span class="om-symbol">ॐ</span>{{ wish.text }}
+                                    </div>
+                                </div>
+                                <div class="item-type">Желание</div>
+                            </div>
+                            <div class="item-meta">
+                                <span class="item-user">👤 {{ wish.user.username }}</span>
+                                <span class="item-date">📅 {{ wish.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                                <span class="item-meta-badge">🔥 {{ wish.rays_burned }} лучиков</span>
+                                {% if wish.status == 'fulfilled' %}
+                                    <span class="item-meta-badge" style="background: rgba(76, 175, 80, 0.1); color: #4CAF50;">✨ Исполнено</span>
+                                {% endif %}
+                            </div>
+                            <div class="support-section">
+                                <div class="support-rating">
+                                    🔥 Поддержка: <strong>{{ wish.total_support_rays }}</strong> лучиков
+                                </div>
+                                <input type="number" class="support-input" id="support-amount-{{ wish.id }}" min="1" value="10" max="1000">
+                                <button class="support-btn" onclick="supportWish({{ wish.id }})">💝 Поддержать</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-message">
+                    ॐ Пока нет открытых желаний... Будьте первыми! ✨
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Public Reports Section -->
+        <div class="feed-section">
+            <h2>📝 Отчеты о Практиках</h2>
+            {% if reports %}
+                <div class="feed-items">
+                    {% for report in reports %}
+                        <div class="feed-item report">
+                            <div class="item-header">
+                                <div class="item-title">День {{ report.day_number }}</div>
+                                <div class="item-type">Отчет</div>
+                            </div>
+                            <div class="item-content">
+                                {{ report.report_text[:300] }}{% if report.report_text|length > 300 %}...{% endif %}
+                            </div>
+                            <div class="item-meta">
+                                <span class="item-user">👤 {{ report.user.username }}</span>
+                                <span class="item-date">📅 {{ report.submitted_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-message">
+                    Пока нет открытых отчетов... Делитесь своим опытом! 📝
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        async function supportWish(wishId) {
+            const raysInput = document.getElementById(`support-amount-${wishId}`);
+            const raysAmount = parseInt(raysInput.value);
+
+            if (raysAmount <= 0) {
+                alert('Введи количество лучиков для поддержки');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/support_wish/${wishId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        rays: raysAmount
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show success message
+                    alert(`✅ ${data.message}`);
+
+                    // Reload page to show updated rating
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    alert('❌ Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Произошла ошибка');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,717 @@
+ 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solfeggio Frequencies — 9 Strings of Ascension</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Inter:wght@200;300;400&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            overflow: hidden;
+        }
+        
+        .serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+        
+        .string-container {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2vw;
+        }
+        
+        .string-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+        
+        .string-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        
+        .string-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3), transparent 50%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.5;
+        }
+        
+        .string-btn:hover {
+            transform: scale(1.1);
+            border-color: rgba(255,255,255,0.3);
+            box-shadow: 0 0 30px rgba(255,255,255,0.1);
+        }
+        
+        .string-btn.active {
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+            border-color: rgba(255,255,255,0.5);
+            box-shadow: 0 0 60px rgba(255,255,255,0.2), inset 0 0 20px rgba(255,255,255,0.1);
+            transform: scale(1.15);
+        }
+        
+        .string-btn.active::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.4);
+            animation: ripple 2s ease-out infinite;
+        }
+        
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
+        .connector {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            position: relative;
+        }
+        
+        .connector::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .frequency-label {
+            position: absolute;
+            bottom: -30px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .hz-label {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-top: 2px;
+        }
+        
+        .visualizer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+        
+        .start-overlay {
+            position: fixed;
+            inset: 0;
+            background: #0a0a0f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            transition: opacity 0.8s ease;
+        }
+        
+        .start-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .start-btn {
+            padding: 20px 60px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: white;
+            font-size: 14px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .start-btn:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.4);
+            letter-spacing: 6px;
+        }
+        
+        .title {
+            position: fixed;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .title h1 {
+            font-size: 14px;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+        }
+        
+        .title p {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 2px;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+        }
+        
+        .control-btn {
+            padding: 10px 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.02);
+            color: rgba(255,255,255,0.5);
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-btn:hover {
+            border-color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .glow-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                rgba(255,255,255,0.1) 20%, 
+                rgba(255,255,255,0.1) 80%, 
+                transparent 100%);
+            transform: translateX(-50%);
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 10s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+        
+        .harmony-indicator {
+            position: fixed;
+            top: 50%;
+            right: 40px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            opacity: 0.3;
+        }
+        
+        .harmony-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .harmony-dot.active {
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Start Overlay -->
+    <div class="start-overlay" id="startOverlay">
+        <div class="text-center mb-12">
+            <h2 class="serif text-4xl text-white/80 mb-4 tracking-widest">Solfeggio</h2>
+            <p class="text-white/40 text-xs tracking-[0.3em] uppercase">9 Frequencies of Ascension</p>
+        </div>
+        <button class="start-btn" onclick="initAudio()">Enter the Sound</button>
+    </div>
+
+    <!-- Title -->
+    <div class="title">
+        <h1 class="serif">Solfeggio Frequencies</h1>
+        <p>Touch the strings to create harmony</p>
+    </div>
+
+    <!-- Main Interface -->
+    <div class="string-container" id="stringContainer">
+        <!-- Generated by JS -->
+    </div>
+
+    <!-- Visualizer -->
+    <canvas class="visualizer" id="visualizer"></canvas>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="control-btn" onclick="releaseAll()">Release All</button>
+        <button class="control-btn" onclick="toggleDrone()">Drone Mode</button>
+        <button class="control-btn" onclick="randomHarmony()">Random Harmony</button>
+    </div>
+
+    <!-- Harmony Indicator -->
+    <div class="harmony-indicator" id="harmonyIndicator">
+        <!-- Generated by JS -->
+    </div>
+
+    <script>
+        // User data
+        let dustAmount = {{ user_gold_dust }};
+        const userId = {{ user_id }};
+
+        // Solfeggio frequencies with harmonic relationships
+        const frequencies = [
+            { base: 174, name: 'Foundation', color: '#8B4513', desc: 'Security & Grounding' },
+            { base: 285, name: 'Quantum', color: '#2E8B57', desc: 'Energy & Revival' },
+            { base: 369, name: 'Universe', color: '#4682B4', desc: 'Guilt & Fear Liberation' },
+            { base: 417, name: 'Transmutation', color: '#9370DB', desc: 'Facilitating Change' },
+            { base: 528, name: 'Miracle', color: '#FFD700', desc: 'DNA Repair & Love' },
+            { base: 639, name: 'Connection', color: '#FF6347', desc: 'Relationships & Unity' },
+            { base: 741, name: 'Expression', color: '#FF1493', desc: 'Solutions & Awakening' },
+            { base: 852, name: 'Intuition', color: '#00CED1', desc: 'Spiritual Order' },
+            { base: 963, name: 'Divine', color: '#FFFFFF', desc: 'Pure Consciousness' }
+        ];
+
+        let audioContext;
+        let activeOscillators = new Map(); // Map to store multiple oscillators per frequency
+        let analyser;
+        let droneMode = false;
+        let particles = [];
+
+        // Harmonic relationships (adjacent strings create consonant intervals)
+        const harmonicRelations = [
+            [1, 0.5, 2],    // 174 - Perfect intervals
+            [1, 0.5, 2],    // 285
+            [1, 0.5, 2],    // 369
+            [1, 0.5, 2],    // 417
+            [1, 0.5, 2],    // 528
+            [1, 0.5, 2],    // 639
+            [1, 0.5, 2],    // 741
+            [1, 0.5, 2],    // 852
+            [1, 0.5, 2]     // 963
+        ];
+
+        // Add gold dust for each note based on frequency
+        async function addDustParticle(frequency) {
+            try {
+                const baseFreq = Math.round(frequency);
+                const response = await fetch(`/add_gold_dust/${userId}/${baseFreq}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    dustAmount = data.new_balance;
+                    updateDustCounterDisplay();
+                }
+            } catch (error) {
+                console.error('Error adding dust:', error);
+            }
+        }
+
+        function updateDustCounterDisplay() {
+            const display = document.getElementById('dustAmount');
+            if (display) {
+                display.textContent = Math.floor(dustAmount);
+            }
+        }
+
+        function initAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+            analyser.connect(audioContext.destination);
+            
+            document.getElementById('startOverlay').classList.add('hidden');
+            createStrings();
+            createParticles();
+            animate();
+        }
+
+        function createStrings() {
+            const container = document.getElementById('stringContainer');
+            const indicator = document.getElementById('harmonyIndicator');
+            
+            frequencies.forEach((freq, index) => {
+                // Create column
+                const column = document.createElement('div');
+                column.className = 'string-column';
+                
+                // Create connector line
+                const connector = document.createElement('div');
+                connector.className = 'connector';
+                column.appendChild(connector);
+                
+                // Create 3 octaves (base, 2x, 4x)
+                const octaves = [1, 2, 4];
+                octaves.forEach((mult, i) => {
+                    const btn = document.createElement('div');
+                    btn.className = 'string-btn';
+                    btn.dataset.freq = freq.base * mult;
+                    btn.dataset.index = index;
+                    btn.dataset.octave = i;
+                    btn.innerHTML = `
+                        <div class="text-center">
+                            <div class="font-light">${freq.base * mult}</div>
+                            <div class="hz-label">Hz</div>
+                        </div>
+                    `;
+                    
+                    btn.addEventListener('mousedown', () => playTone(freq.base * mult, index, i));
+                    btn.addEventListener('mouseup', () => releaseTone(freq.base * mult));
+                    btn.addEventListener('mouseleave', () => releaseTone(freq.base * mult));
+                    
+                    // Touch support
+                    btn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        playTone(freq.base * mult, index, i);
+                    });
+                    btn.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        releaseTone(freq.base * mult);
+                    });
+                    
+                    column.appendChild(btn);
+                    
+                    if (i < 2) {
+                        const conn = document.createElement('div');
+                        conn.className = 'connector';
+                        column.appendChild(conn);
+                    }
+                });
+                
+                // Label
+                const label = document.createElement('div');
+                label.className = 'frequency-label serif';
+                label.innerHTML = `${freq.name}<br><span style="font-size:8px;opacity:0.5">${freq.base}Hz</span>`;
+                column.appendChild(label);
+                
+                container.appendChild(column);
+                
+                // Harmony indicator dot
+                const dot = document.createElement('div');
+                dot.className = 'harmony-dot';
+                dot.id = `harmony-${index}`;
+                indicator.appendChild(dot);
+            });
+        }
+
+        function playTone(frequency, stringIndex, octaveIndex) {
+            if (!audioContext) return;
+            
+            // Resume context if suspended
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            // Don't duplicate if already playing (unless drone mode)
+            if (activeOscillators.has(frequency) && !droneMode) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            // Use sine wave for pure tone
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            
+            // Subtle filter for warmth
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(frequency * 4, audioContext.currentTime);
+            
+            // Envelope - slow attack, long sustain, slow release
+            const now = audioContext.currentTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.3, now + 0.5); // Slow attack
+            gainNode.gain.setValueAtTime(0.3, now + 0.5); // Sustain
+            
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(analyser);
+            
+            oscillator.start();
+            
+            // Store with gain node for release control
+            if (!activeOscillators.has(frequency)) {
+                activeOscillators.set(frequency, []);
+            }
+            activeOscillators.get(frequency).push({ oscillator, gainNode, startTime: now });
+            
+            // Visual feedback
+            updateVisualState(frequency, true);
+            updateHarmonyIndicator(stringIndex, true);
+
+            // Create ripple effect
+            createRipple(stringIndex, octaveIndex);
+
+            // Add gold dust for this note
+            addDustParticle(frequency);
+        }
+
+        function releaseTone(frequency) {
+            if (!activeOscillators.has(frequency)) return;
+            
+            const oscs = activeOscillators.get(frequency);
+            const now = audioContext.currentTime;
+            
+            oscs.forEach(({ oscillator, gainNode }) => {
+                // Slow release - 3 seconds fade out
+                gainNode.gain.cancelScheduledValues(now);
+                gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 3);
+                
+                oscillator.stop(now + 3);
+                
+                // Cleanup after release
+                setTimeout(() => {
+                    try {
+                        oscillator.disconnect();
+                        gainNode.disconnect();
+                    } catch(e) {}
+                }, 3000);
+            });
+            
+            activeOscillators.delete(frequency);
+            
+            // Visual feedback
+            updateVisualState(frequency, false);
+            
+            // Update harmony indicators based on remaining active strings
+            updateAllHarmonyIndicators();
+        }
+
+        function updateVisualState(frequency, isActive) {
+            const buttons = document.querySelectorAll(`[data-freq="${frequency}"]`);
+            buttons.forEach(btn => {
+                if (isActive) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        function updateHarmonyIndicator(index, isActive) {
+            const dot = document.getElementById(`harmony-${index}`);
+            if (isActive) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        }
+
+        function updateAllHarmonyIndicators() {
+            const activeIndices = new Set();
+            activeOscillators.forEach((oscs, freq) => {
+                frequencies.forEach((f, i) => {
+                    if (freq === f.base || freq === f.base * 2 || freq === f.base * 4) {
+                        activeIndices.add(i);
+                    }
+                });
+            });
+            
+            frequencies.forEach((_, i) => {
+                updateHarmonyIndicator(i, activeIndices.has(i));
+            });
+        }
+
+        function releaseAll() {
+            activeOscillators.forEach((oscs, freq) => {
+                releaseTone(freq);
+            });
+        }
+
+        function toggleDrone() {
+            droneMode = !droneMode;
+            event.target.textContent = droneMode ? 'Drone: ON' : 'Drone Mode';
+            event.target.style.borderColor = droneMode ? 'rgba(255,255,255,0.5)' : '';
+        }
+
+        function randomHarmony() {
+            // Play a random consonant chord based on harmonic relationships
+            const baseIndex = Math.floor(Math.random() * frequencies.length);
+            const baseFreq = frequencies[baseIndex].base;
+            
+            // Play root, fifth (approximated), and octave
+            playTone(baseFreq, baseIndex, 0);
+            setTimeout(() => playTone(baseFreq * 1.5, (baseIndex + 4) % 9, 0), 100);
+            setTimeout(() => playTone(baseFreq * 2, baseIndex, 1), 200);
+            
+            // Auto release after 4 seconds
+            setTimeout(() => {
+                releaseTone(baseFreq);
+                releaseTone(baseFreq * 1.5);
+                releaseTone(baseFreq * 2);
+            }, 4000);
+        }
+
+        function createRipple(stringIndex, octaveIndex) {
+            const columns = document.querySelectorAll('.string-column');
+            const column = columns[stringIndex];
+            const buttons = column.querySelectorAll('.string-btn');
+            const btn = buttons[octaveIndex];
+            
+            const rect = btn.getBoundingClientRect();
+            const ripple = document.createElement('div');
+            ripple.style.position = 'fixed';
+            ripple.style.left = rect.left + rect.width/2 + 'px';
+            ripple.style.top = rect.top + rect.height/2 + 'px';
+            ripple.style.width = '0px';
+            ripple.style.height = '0px';
+            ripple.style.borderRadius = '50%';
+            ripple.style.border = '1px solid rgba(255,255,255,0.3)';
+            ripple.style.transform = 'translate(-50%, -50%)';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.animation = 'rippleExpand 2s ease-out forwards';
+            
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 2000);
+        }
+
+        function createParticles() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = Math.random() * 100 + 'vw';
+                    p.style.top = '100vh';
+                    p.style.animationDelay = Math.random() * 5 + 's';
+                    p.style.animationDuration = (15 + Math.random() * 10) + 's';
+                    document.body.appendChild(p);
+                    particles.push(p);
+                }, i * 500);
+            }
+        }
+
+        // Visualizer
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const canvas = document.getElementById('visualizer');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = 200;
+            
+            if (!analyser) return;
+            
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteFrequencyData(dataArray);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const barWidth = canvas.width / bufferLength * 2.5;
+            let barHeight;
+            let x = 0;
+            
+            for(let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 2;
+                
+                const gradient = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
+                gradient.addColorStop(0, 'rgba(255,255,255,0.1)');
+                gradient.addColorStop(1, 'rgba(255,255,255,0.3)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                
+                x += barWidth + 1;
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ') {
+                releaseAll();
+            }
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes rippleExpand {
+                0% { width: 0; height: 0; opacity: 1; }
+                100% { width: 200px; height: 200px; opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('visualizer');
+            canvas.width = window.innerWidth;
+        });
+    </script>
+</body>
+</html>

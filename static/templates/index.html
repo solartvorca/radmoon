@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Marathon</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}">
+    <script src="{{ url_for("static", filename="moon.js") }}"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Lunar Marathon!</h1>
+        <div class="moon-phase">
+            <p>Current Lunar Day: {{ current_lunar_day }}</p>
+        </div>
+        <!-- Будильник -->
+        <div id="awareness-alarm" class="alarm-block">
+            <h2>Будильник осознавания</h2>
+            <label>
+                <input type="checkbox" id="alarm-toggle" checked>
+                Включить будильник (каждые <span id="alarm-interval">10</span> минут)
+            </label>
+            <input type="range" id="alarm-slider" min="1" max="60" value="10">
+            <p style="font-size:0.9em; color:#aaa; margin-top:10px;">Можно настроить интервал от 1 до 60 минут</p>
+            <div class="alarm-description" style="text-align:left; margin-top:20px; background:#222; padding:15px; border-radius:8px;">
+                <b>Самое важное в жизни, о чем можно только подумать, особенно миллиардерам, находящимся в экзистеницальном кризисе и испытывающим невообразимую тоску по самому себе.</b><br><br>
+                Ничто из того, на что возможно обратить внимание, — не есть я.<br>
+                Я Есть.<br>
+                Не спрашивай себя: «кто я?», спроси себя: «что осознаёт?». Прямо сейчас, что осознаёт этот сон, который воспринимается как жизнь?<br>
+                Это то, что не имеет формы, вкуса, запаха; это то, что не постигается чувствами и восприятием, лишь только осознаванием и осознанием.<br><br>
+                Человеку, который уже не может компенсировать эту тоску и страдания материальными побрякушками, эйфоретиками, путешествиями, сменой сексуальных партнёров, — ничто не поможет, особенно антидепресанты. Поможет лишь только реализация того, зачем жизнь вводит человека в этот кризис: человек забыл про себя, его душа не выполняет то, зачем она воплотилась.<br><br>
+                И это осознавание самого [себя] или источника внимания. Когда человек не выполняет главную задачу своей жизни и предназначения этой площадки игры забвения под названием Земля, он испытывает страдания. Если не знать их природу и источник, то избавления не купить за деньги, так как эти страдания духовной природы. Здесь поможет лишь будильник, который звенит каждые 10 минут, чтобы тот, кто его слышит, каждый раз начинал осознавать свою истиную природу или то, что осознаёт. То есть — ничто из того, на что возможно обратить внимание.
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/register">Register</a></li>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/task/{{ current_lunar_day }}">Today's Task</a></li>
+            </ul>
+        </nav>
+    </div>
+    <script src="{{ url_for('static', filename='awareness_alarm.js') }}"></script>
+</body>
+</html>

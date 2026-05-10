@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки уведомлений - Луновой марафон</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0B1026 0%, #1a0a2e 100%);
+            color: #E0E0E0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .settings-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .settings-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .settings-header h1 {
+            font-size: 2.5em;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .settings-card {
+            background: rgba(42, 47, 74, 0.6);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .settings-card h3 {
+            color: #FFD700;
+            margin-top: 0;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-item {
+            margin-bottom: 25px;
+        }
+
+        .setting-item label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            color: rgba(255, 215, 0, 0.8);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #FFD700;
+        }
+
+        .setting-description {
+            color: rgba(255, 215, 0, 0.5);
+            font-size: 0.9em;
+            margin-left: 32px;
+            margin-top: 5px;
+        }
+
+        .input-group {
+            margin-top: 15px;
+            margin-left: 32px;
+        }
+
+        .input-group label {
+            display: block;
+            color: rgba(255, 215, 0, 0.7);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            color: #E0E0E0;
+            font-family: inherit;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: rgba(255, 215, 0, 0.6);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #0B1026;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn-test {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-test:hover {
+            background: rgba(76, 175, 80, 0.5);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .back-link {
+            color: #FFD700;
+            text-decoration: none;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transform: translateX(-5px);
+        }
+
+        .success-message {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 8px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-box {
+            background: rgba(66, 135, 245, 0.1);
+            border-left: 4px solid #4287f5;
+            padding: 15px;
+            border-radius: 8px;
+            color: rgba(66, 135, 245, 0.9);
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        .icon {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <a href="/task/{{ current_lunar_day }}" class="back-link">← Назад к заданиям</a>
+
+        <div class="settings-header">
+            <h1>⚙️ НАСТРОЙКИ УВЕДОМЛЕНИЙ</h1>
+            <p style="color: rgba(255, 215, 0, 0.6); letter-spacing: 2px;">Выбери способы получения напоминаний</p>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            ✓ Настройки успешно сохранены!
+        </div>
+
+        <div class="settings-card">
+            <h3><span class="icon">📧</span>Email уведомления</h3>
+
+            <div class="setting-item">
+                <label>
+                    <input type="checkbox" class="checkbox" id="emailToggle" onchange="updateSettings()">
+                    Получать напоминания на почту
+                </label>
+                <div class="setting-description">
+                    Напоминания о новых заданиях будут отправлены на: <strong>{{ user_email }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <h3><span class="icon">💬</span>VK сообщения</h3>
+
+            <div class="info-box">
+                ℹ️ Для получения сообщений в ВК, напиши свой VK ID. Он находится в профиле: vk.com/id123456789
+            </div>
+
+            <div class="setting-item">
+                <label>
+                    <input type="checkbox" class="checkbox" id="vkToggle" onchange="updateSettings()">
+                    Получать напоминания в ВК
+                </label>
+                <div class="setting-description">
+                    Личные сообщения в ВКонтакте для напоминаний о заданиях
+                </div>
+
+                <div class="input-group" id="vkIdGroup" style="display: none;">
+                    <label for="vkId">Твой VK ID:</label>
+                    <input type="text" id="vkId" placeholder="Например: 123456789" onchange="updateSettings()">
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <h3><span class="icon">⏰</span>Время напоминаний</h3>
+
+            <div class="setting-item">
+                <div class="input-group">
+                    <label for="notificationTime">Отправлять напоминания в:</label>
+                    <input type="time" id="notificationTime" onchange="updateSettings()">
+                </div>
+                <div class="setting-description">
+                    Напоминание о дневном задании будет приходить в выбранное время
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="button-group">
+                <button class="btn btn-save" onclick="saveSettings()">💾 Сохранить</button>
+                <button class="btn btn-test" onclick="testNotification()">🧪 Тест</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load current settings
+        function loadSettings() {
+            const settings = {
+                email_notifications: {{ settings.email_notifications|tojson }},
+                vk_notifications: {{ settings.vk_notifications|tojson }},
+                vk_user_id: '{{ settings.vk_user_id }}',
+                notification_time: '{{ settings.notification_time }}'
+            };
+
+            document.getElementById('emailToggle').checked = settings.email_notifications;
+            document.getElementById('vkToggle').checked = settings.vk_notifications;
+            document.getElementById('vkId').value = settings.vk_user_id;
+            document.getElementById('notificationTime').value = settings.notification_time;
+
+            updateSettings();
+        }
+
+        function updateSettings() {
+            const vkToggle = document.getElementById('vkToggle');
+            const vkIdGroup = document.getElementById('vkIdGroup');
+
+            if (vkToggle.checked) {
+                vkIdGroup.style.display = 'block';
+            } else {
+                vkIdGroup.style.display = 'none';
+            }
+        }
+
+        async function saveSettings() {
+            const emailNotifications = document.getElementById('emailToggle').checked;
+            const vkNotifications = document.getElementById('vkToggle').checked;
+            const vkUserId = document.getElementById('vkId').value;
+            const notificationTime = document.getElementById('notificationTime').value;
+
+            if (vkNotifications && !vkUserId) {
+                alert('Пожалуйста, введи свой VK ID');
+                return;
+            }
+
+            try {
+                const response = await fetch('/notification-settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email_notifications: emailNotifications,
+                        vk_notifications: vkNotifications,
+                        vk_user_id: vkUserId,
+                        notification_time: notificationTime
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const successMsg = document.getElementById('successMessage');
+                    successMsg.classList.add('show');
+                    setTimeout(() => {
+                        successMsg.classList.remove('show');
+                    }, 3000);
+                } else {
+                    alert('Ошибка: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при сохранении настроек');
+            }
+        }
+
+        async function testNotification() {
+            const emailNotifications = document.getElementById('emailToggle').checked;
+            const vkNotifications = document.getElementById('vkToggle').checked;
+
+            if (!emailNotifications && !vkNotifications) {
+                alert('Включи хотя бы один способ уведомления');
+                return;
+            }
+
+            try {
+                const response = await fetch('/test-notification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let message = '✓ Результаты тестирования:\n\n';
+
+                    if (data.results.email) {
+                        message += '✓ Email отправлен\n';
+                    } else if (emailNotifications) {
+                        message += '✗ Email не отправлен (проверь настройки SMTP)\n';
+                    }
+
+                    if (data.results.vk) {
+                        message += '✓ ВК сообщение отправлено\n';
+                    } else if (vkNotifications) {
+                        message += '✗ ВК сообщение не отправлено (проверь VK ID и токен)\n';
+                    }
+
+                    alert(message);
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при тестировании');
+            }
+        }
+
+        // Load settings on page load
+        document.addEventListener('DOMContentLoaded', loadSettings);
+    </script>
+</body>
+</html>
