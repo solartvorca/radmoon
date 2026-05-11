@@ -227,13 +227,18 @@ def import_initial_data():
         # Import users
         if "user" in data:
             for user_data in data["user"]:
+                is_admin = user_data.get("is_admin", False)
+                # Convert SQLite 1/0 to boolean
+                if isinstance(is_admin, int):
+                    is_admin = bool(is_admin)
+
                 user = User(
                     username=user_data["username"],
                     email=user_data["email"],
                     password=user_data["password"],
                     vk_id=user_data.get("vk_id"),
                     rays_balance=user_data.get("rays_balance", 0),
-                    is_admin=user_data.get("is_admin", False)
+                    is_admin=is_admin
                 )
                 db.session.add(user)
             db.session.commit()
