@@ -189,13 +189,19 @@ def get_current_lunar_day():
 
 # --- Initialize Database ---
 def init_db():
+    print("[DB] Starting database initialization...")
     try:
         with app.app_context():
+            print("[DB] Creating tables...")
             db.create_all()
             print("[DB] Tables created successfully")
+            print("[DB] Calling import_initial_data...")
             import_initial_data()
+            print("[DB] import_initial_data completed")
     except Exception as e:
-        print(f"[DB] Error creating tables: {e}")
+        print(f"[DB] Error in init_db: {e}")
+        import traceback
+        traceback.print_exc()
 
 def import_initial_data():
     import json
