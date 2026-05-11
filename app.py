@@ -201,15 +201,20 @@ def import_initial_data():
     import json
     import os
 
+    print("[DB] Checking for initial data import...")
+
     try:
         if not os.path.exists("export.json"):
+            print("[DB] export.json not found")
             return
 
         # Check if database has data
-        if User.query.first() is not None:
+        existing_user = User.query.first()
+        if existing_user is not None:
+            print("[DB] Database already has data, skipping import")
             return
 
-        print("[DB] Importing initial data...")
+        print("[DB] Importing initial data from export.json...")
         with open("export.json", "r", encoding="utf-8") as f:
             data = json.load(f)
 
