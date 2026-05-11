@@ -604,6 +604,19 @@ def submit_report(user_id, day_num):
         return redirect(url_for("marathon_task", marathon_id=marathon_id, day_num=day_num))
     return redirect(url_for("daily_task", day_num=day_num))
 
+# --- TEMPORARY: Make user admin ---
+@app.route("/make-me-admin")
+def make_me_admin():
+    if "user_id" not in session:
+        return "Not logged in", 401
+
+    user = User.query.get(session["user_id"])
+    if user and user.username == "mirdharm":
+        user.is_admin = True
+        db.session.commit()
+        return "You are now admin! Go to /admin-secret-portal"
+    return "Only mirdharm can use this", 403
+
 # --- СЕКРЕТНЫЙ ПОРТАЛ АДМИНИСТРАТОРА ---
 @app.route("/admin-secret-portal", methods=["GET", "POST"])
 def admin_portal():
