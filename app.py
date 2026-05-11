@@ -8,6 +8,7 @@ import requests
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 try:
@@ -256,22 +257,22 @@ def import_initial_data():
             # Import users
             if "user" in data:
                 for user_data in data["user"]:
-                is_admin = user_data.get("is_admin", False)
-                # Convert SQLite 1/0 to boolean
-                if isinstance(is_admin, int):
-                    is_admin = bool(is_admin)
+                    is_admin = user_data.get("is_admin", False)
+                    # Convert SQLite 1/0 to boolean
+                    if isinstance(is_admin, int):
+                        is_admin = bool(is_admin)
 
-                user = User(
-                    username=user_data["username"],
-                    email=user_data["email"],
-                    password=user_data["password"],
-                    vk_id=user_data.get("vk_id"),
-                    rays_balance=user_data.get("rays_balance", 0),
-                    is_admin=is_admin
-                )
-                db.session.add(user)
-            db.session.commit()
-            print(f"[DB] Imported {len(data['user'])} users")
+                    user = User(
+                        username=user_data["username"],
+                        email=user_data["email"],
+                        password=user_data["password"],
+                        vk_id=user_data.get("vk_id"),
+                        rays_balance=user_data.get("rays_balance", 0),
+                        is_admin=is_admin
+                    )
+                    db.session.add(user)
+                db.session.commit()
+                print(f"[DB] Imported {len(data['user'])} users")
 
         # Import marathons
         if "marathon" in data:
@@ -328,8 +329,9 @@ def register():
         if existing_user:
             flash("Username or email already exists.")
             return redirect(url_for("register"))
-        
-        new_user = User(username=username, email=email, password=password, vk_id=vk_id) # Added password
+
+        hashed_password = generate_password_hash(password)
+        new_user = User(username=username, email=email, password=hashed_password, vk_id=vk_id)
         db.session.add(new_user)
         db.session.commit()
         flash("Registration successful! Please log in.")
@@ -338,15 +340,12 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # Placeholder for login logic - A real app would have proper authentication
-    # For now, let's assume successful login for any user that exists
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
         user = User.query.filter_by(username=username).first()
-        if user and user.password == password: # Basic password check
+        if user and check_password_hash(user.password, password):
             flash(f"Logged in as {user.username} (ID: {user.id})")
-            # Store user ID in session
             session["user_id"] = user.id
             return redirect(url_for("index"))
         else:
