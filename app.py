@@ -283,33 +283,33 @@ def import_initial_data():
 
             # Import marathons
             if "marathon" in data:
-            for m_data in data["marathon"]:
-                marathon = Marathon(
-                    name=m_data["name"],
-                    description=m_data.get("description"),
-                    goal=m_data.get("goal"),
-                    calendar_type=m_data.get("calendar_type"),
-                    is_published=m_data.get("is_published", False),
-                    min_rays=m_data.get("min_rays", 0),
-                    order_number=m_data.get("order_number", 0)
-                )
-                db.session.add(marathon)
-            db.session.commit()
-            print(f"[DB] Imported {len(data['marathon'])} marathons")
+                for m_data in data["marathon"]:
+                    marathon = Marathon(
+                        name=m_data["name"],
+                        description=m_data.get("description"),
+                        goal=m_data.get("goal"),
+                        calendar_type=m_data.get("calendar_type"),
+                        is_published=m_data.get("is_published", False),
+                        min_rays=m_data.get("min_rays", 0),
+                        order_number=m_data.get("order_number", 0)
+                    )
+                    db.session.add(marathon)
+                db.session.commit()
+                print(f"[DB] Imported {len(data['marathon'])} marathons")
 
-        # Import daily tasks
-        if "daily_task" in data:
-            for task_data in data["daily_task"]:
-                task = DailyTask(
-                    day_number=task_data["day_number"],
-                    title=task_data["title"],
-                    content=task_data["content"],
-                    video_url=task_data.get("video_url"),
-                    marathon_id=task_data["marathon_id"]
-                )
-                db.session.add(task)
-            db.session.commit()
-            print(f"[DB] Imported {len(data['daily_task'])} tasks")
+            # Import daily tasks
+            if "daily_task" in data:
+                for task_data in data["daily_task"]:
+                    task = DailyTask(
+                        day_number=task_data["day_number"],
+                        title=task_data["title"],
+                        content=task_data["content"],
+                        video_url=task_data.get("video_url"),
+                        marathon_id=task_data["marathon_id"]
+                    )
+                    db.session.add(task)
+                db.session.commit()
+                print(f"[DB] Imported {len(data['daily_task'])} tasks")
 
         print("[DB] Initial data import complete")
     except Exception as e:
