@@ -206,27 +206,56 @@ def init_db():
 def import_initial_data():
     import json
     import os
+    from marathon_data import MARATHON_DATA, TASKS_DATA
 
     print("[DB] Checking for initial data import...")
 
     try:
-        if not os.path.exists("export.json"):
-            print("[DB] export.json not found")
+        # Check if database already has marathon
+        existing_marathon = Marathon.query.first()
+        if existing_marathon is not None:
+            print("[DB] Marathon already exists, skipping import")
             return
 
-        # Check if database has data
-        existing_user = User.query.first()
-        if existing_user is not None:
-            print("[DB] Database already has data, skipping import")
-            return
+        print("[DB] Importing built-in lunar marathon...")
 
-        print("[DB] Importing initial data from export.json...")
-        with open("export.json", "r", encoding="utf-8") as f:
-            data = json.load(f)
+        # Create marathon
+        marathon = Marathon(
+            name=MARATHON_DATA["name"],
+            description=MARATHON_DATA["description"],
+            goal=MARATHON_DATA["goal"],
+            calendar_type=MARATHON_DATA.get("calendar_type"),
+            is_published=MARATHON_DATA.get("is_published", True),
+            min_rays=MARATHON_DATA.get("min_rays", 0),
+            order_number=MARATHON_DATA.get("order_number", 1)
+        )
+        db.session.add(marathon)
+        db.session.flush()  # Get the marathon ID
 
-        # Import users
-        if "user" in data:
-            for user_data in data["user"]:
+        print(f"[DB] Created marathon: {marathon.name}")
+
+        # Import tasks
+        if TASKS_DATA:
+            for task_data in TASKS_DATA:
+                task = DailyTask(
+                    day_number=task_data["day_number"],
+                    title=task_data["title"],
+                    content=task_data["content"],
+                    video_url=task_data.get("video_url"),
+                    marathon_id=marathon.id
+                )
+                db.session.add(task)
+            db.session.commit()
+            print(f"[DB] Imported {len(TASKS_DATA)} tasks")
+
+        # Try to load users from export.json if it exists
+        if os.path.exists("export.json"):
+            with open("export.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            # Import users
+            if "user" in data:
+                for user_data in data["user"]:
                 is_admin = user_data.get("is_admin", False)
                 # Convert SQLite 1/0 to boolean
                 if isinstance(is_admin, int):
