@@ -23,7 +23,11 @@ if database_url and database_url.startswith("postgresql://"):
     # Fix psycopg2 URL for SQLAlchemy
     database_url = database_url.replace("postgresql://", "postgresql+psycopg2://")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url or "sqlite:///marathon.db"
+# Use in-memory SQLite for Railway if no DATABASE_URL is set
+if not database_url:
+    database_url = "sqlite:///:memory:"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
