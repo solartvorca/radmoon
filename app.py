@@ -330,12 +330,22 @@ def daily_task(day_num):
         session.clear()
         return redirect(url_for("login"))
 
-    task = DailyTask.query.get_or_404(day_num)
+    # Get marathon_id from session or use first available
+    marathon_id = session.get("marathon_id")
+    if not marathon_id:
+        first_marathon = Marathon.query.first()
+        if not first_marathon:
+            flash("No marathons available")
+            return redirect(url_for("index"))
+        marathon_id = first_marathon.id
+        session["marathon_id"] = marathon_id
+
+    task = DailyTask.query.filter_by(day_number=day_num, marathon_id=marathon_id).first_or_404()
 
     # ЛОГИКА: Если у пользователя еще нет отчетов, значит это первый заход
     is_first_time = len(user.reports) == 0
 
-    report_submitted = Report.query.filter_by(user_id=user.id, day_number=day_num).first() is not None
+    report_submitted = Report.query.filter_by(user_id=user.id, day_number=day_num, marathon_id=marathon_id).first() is not None
     return render_template("task.html", task=task, is_first_time=is_first_time, report_submitted=report_submitted, user_id=user.id, user_rays=user.rays_balance)
 
 @app.route("/solfeggio")
