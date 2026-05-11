@@ -217,6 +217,9 @@ def import_initial_data():
         if existing_marathon is not None:
             print("[DB] Marathon already exists, skipping import")
             return
+    except Exception as e:
+        print(f"[DB] Error checking marathon: {e}")
+        return
 
         print("[DB] Importing built-in lunar marathon...")
 
@@ -274,8 +277,8 @@ def import_initial_data():
                 db.session.commit()
                 print(f"[DB] Imported {len(data['user'])} users")
 
-        # Import marathons
-        if "marathon" in data:
+            # Import marathons
+            if "marathon" in data:
             for m_data in data["marathon"]:
                 marathon = Marathon(
                     name=m_data["name"],
