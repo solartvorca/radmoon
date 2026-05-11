@@ -26,6 +26,10 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_url or "sqlite:///marathon.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
+# Create tables on startup
+with app.app_context():
+    db.create_all()
+
 # Environment variables with defaults for Railway deployment
 SMTP_HOST = os.environ.get("SMTP_HOST", "")
 SMTP_PORT = os.environ.get("SMTP_PORT", "587")
