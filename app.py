@@ -193,8 +193,74 @@ def init_db():
         with app.app_context():
             db.create_all()
             print("[DB] Tables created successfully")
+            import_initial_data()
     except Exception as e:
         print(f"[DB] Error creating tables: {e}")
+
+def import_initial_data():
+    import json
+    import os
+
+    try:
+        if not os.path.exists("export.json"):
+            return
+
+        # Check if database has data
+        if User.query.first() is not None:
+            return
+
+        print("[DB] Importing initial data...")
+        with open("export.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        # Import users
+        if "user" in data:
+            for user_data in data["user"]:
+                user = User(
+                    username=user_data["username"],
+                    email=user_data["email"],
+                    password=user_data["password"],
+                    vk_id=user_data.get("vk_id"),
+                    rays_balance=user_data.get("rays_balance", 0),
+                    is_admin=user_data.get("is_admin", False)
+                )
+                db.session.add(user)
+            db.session.commit()
+            print(f"[DB] Imported {len(data['user'])} users")
+
+        # Import marathons
+        if "marathon" in data:
+            for m_data in data["marathon"]:
+                marathon = Marathon(
+                    name=m_data["name"],
+                    description=m_data.get("description"),
+                    goal=m_data.get("goal"),
+                    calendar_type=m_data.get("calendar_type"),
+                    is_published=m_data.get("is_published", False),
+                    min_rays=m_data.get("min_rays", 0),
+                    order_number=m_data.get("order_number", 0)
+                )
+                db.session.add(marathon)
+            db.session.commit()
+            print(f"[DB] Imported {len(data['marathon'])} marathons")
+
+        # Import daily tasks
+        if "daily_task" in data:
+            for task_data in data["daily_task"]:
+                task = DailyTask(
+                    day_number=task_data["day_number"],
+                    title=task_data["title"],
+                    content=task_data["content"],
+                    video_url=task_data.get("video_url"),
+                    marathon_id=task_data["marathon_id"]
+                )
+                db.session.add(task)
+            db.session.commit()
+            print(f"[DB] Imported {len(data['daily_task'])} tasks")
+
+        print("[DB] Initial data import complete")
+    except Exception as e:
+        print(f"[DB] Error importing data: {e}")
 
 init_db()
 
