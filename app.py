@@ -26,10 +26,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_url or "sqlite:///marathon.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
-# Create tables on startup
-with app.app_context():
-    db.create_all()
-
 # Environment variables with defaults for Railway deployment
 SMTP_HOST = os.environ.get("SMTP_HOST", "")
 SMTP_PORT = os.environ.get("SMTP_PORT", "587")
@@ -190,6 +186,17 @@ def get_current_lunar_day():
     delta = now - last_full_moon
     current_day = (delta.days % 28) + 1
     return current_day
+
+# --- Initialize Database ---
+def init_db():
+    try:
+        with app.app_context():
+            db.create_all()
+            print("[DB] Tables created successfully")
+    except Exception as e:
+        print(f"[DB] Error creating tables: {e}")
+
+init_db()
 
 # --- Routes ---
 
